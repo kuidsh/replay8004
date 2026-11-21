@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: replay8004 - ERC-8004 re-execution validator for Celo (NOT DEPLOYED; operator deploys in their own account)
+
+Parameters:
+  Network:
+    Type: String
+    Default: celo-sepolia
+    AllowedValues: [celo-sepolia, celo-mainnet]
+  AllowMainnet:
+    Type: String
+    Default: "0"
+    AllowedValues: ["0", "1"]
+    Description: Must be 1 for celo-mainnet. Set only after testing on Sepolia.
+  DryRun:
+    Type: String
+    Default: "1"
+    AllowedValues: ["0", "1"]
+    Description: 1 = compute answers and evidence but send no transactions.
+  ValidatorAddress:
+    Type: String
+    Description: Address of the validator key (used in dry-run mode).
+  ValidatorKeySecretArn:
+    Type: String
+    Default: ""
+    Description: Secrets Manager secret holding ONLY the validator's private key (needed when DryRun=0).
+  StartBlock:
+    Type: Number
+    Default: 0
+  EvidenceRetentionDays:
+    Type: Number
+    Default: 365
+
+Conditions:
+  HasKey: !Not [!Equals [!Ref ValidatorKeySecretArn, ""]]
+
+Resources:
+  EvidenceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      ObjectLockEnabled: true
+      VersioningConfiguration: {Status: Enabled}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-old-versions
+            Status: Enabled
+            NoncurrentVersionExpiration: {NoncurrentDays: 30}
+
+  EvidencePublicRead:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref EvidenceBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadEvidenceOnly
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${EvidenceBucket.Arn}/evidence/*"
+
+  StateTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: [{AttributeName: pk, AttributeType: S}]
+      KeySchema: [{AttributeName: pk, KeyType: HASH}]
+      PointInTimeRecoverySpecification: {PointInTimeRecoveryEnabled: true}
+
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ..
+      Handler: replay8004.lambda_handler.handler
+      Runtime: python3.12
+      Architectures: [arm64]
+      MemorySize: 256
+      Timeout: 50
+      ReservedConcurrentExecutions: 1   # one poller at a time; DynamoDB conditional writes back this up
+      Environment:
+        Variables:
+          NETWORK: !Ref Network
+          REPLAY8004_ALLOW_MAINNET: !Ref AllowMainnet
+          DRY_RUN: !Ref DryRun
+          VALIDATOR_ADDRESS: !Ref ValidatorAddress
+          VALIDATOR_KEY_SECRET_ARN: !Ref ValidatorKeySecretArn
+          STATE_TABLE: !Ref StateTable
+          START_BLOCK: !Ref StartBlock
+          EVIDENCE_BUCKET: !Ref EvidenceBucket
+          EVIDENCE_BASE_URL: !Sub "https://${EvidenceBucket}.s3.${AWS::Region}.amazonaws.com"
+      Policies:
+        - DynamoDBCrudPolicy: {TableName: !Ref StateTable}
+        - Statement:
+            - Effect: Allow
+              Action: [s3:PutObject, s3:PutObjectRetention]
+              Resource: !Sub "${EvidenceBucket.Arn}/evidence/*"
+        - !If
+          - HasKey
+          - Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref ValidatorKeySecretArn
+          - !Ref AWS::NoValue
+      Events:
+        EveryMinute:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: rate(1 minute)
+
+  WorkerLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${WorkerFunction}"
+      RetentionInDays: 30
+
+Outputs:
+  EvidenceBaseUrl:
+    Value: !Sub "https://${EvidenceBucket}.s3.${AWS::Region}.amazonaws.com/evidence"
+  StateTableName:
+    Value: !Ref StateTable

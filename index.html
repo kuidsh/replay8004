@@ -1,0 +1,128 @@
+<title>replay8004 Validator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column like a verification report: verdict table first, then the flow, the gap, money, steps, files */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --fg:#13201d; --muted:#566862; --line:#d7dfdc;
+  --accent:#0d6b5c; --accent-soft:#dcefea; --stamp:#9a5a00; --stamp-bg:#fbeed6;
+  --ok:#17784a; --ok-bg:#ddf2e6; --mid:#8a5a00; --mid-bg:#fbecd0; --bad:#a8262d; --bad-bg:#f8dfe0;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1614; --surface:#15211e; --fg:#e4eeeb; --muted:#9db1ab; --line:#283a35;
+  --accent:#62d2bd; --accent-soft:#163631; --stamp:#f0bd6a; --stamp-bg:#3a2c14;
+  --ok:#7fd6a5; --ok-bg:#173226; --mid:#f0bd6a; --mid-bg:#3a2c14; --bad:#f19aa0; --bad-bg:#3d1d21; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1614; --surface:#15211e; --fg:#e4eeeb; --muted:#9db1ab; --line:#283a35;
+  --accent:#62d2bd; --accent-soft:#163631; --stamp:#f0bd6a; --stamp-bg:#3a2c14;
+  --ok:#7fd6a5; --ok-bg:#173226; --mid:#f0bd6a; --mid-bg:#3a2c14; --bad:#f19aa0; --bad-bg:#3d1d21; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15.5px;line-height:1.55}
+.wrap{max-width:920px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px;display:grid;gap:34px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:2.3rem;color:var(--accent);letter-spacing:-.01em} h2{font-size:1.3rem;padding-bottom:6px;border-bottom:1px solid var(--line)} h3{font-size:1.02rem}
+p{margin:0;max-width:68ch} section{display:grid;gap:12px;min-width:0}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stamp{justify-self:start;font-family:var(--mono);font-size:.78rem;color:var(--stamp);background:var(--stamp-bg);border:1px dashed var(--stamp);padding:6px 10px}
+.tbl{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem} th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--bg)} tr:last-child td{border-bottom:0}
+td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+code,.hash{font-family:var(--mono);font-size:.84em} .hash{color:var(--muted);overflow-wrap:anywhere}
+.score{display:inline-block;min-width:3.2em;text-align:center;font-family:var(--mono);font-weight:500;padding:2px 6px;border-radius:4px}
+.s-ok{background:var(--ok-bg);color:var(--ok)} .s-mid{background:var(--mid-bg);color:var(--mid)} .s-bad{background:var(--bad-bg);color:var(--bad)}
+pre{margin:0;overflow-x:auto;background:var(--surface);border:1px solid var(--line);padding:14px 16px;font-family:var(--mono);font-size:.8rem;line-height:1.6}
+ul,ol{margin:0;padding-left:20px;display:grid;gap:5px}
+.kv{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:7px 16px;font-size:.94rem} .kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
+.note{font-size:.86rem;color:var(--muted)}
+a{color:var(--accent)} a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:540px){.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}h1{font-size:1.9rem}}
+</style>
+
+<div class="wrap">
+<header style="display:grid;gap:10px">
+  <span class="eyebrow">Web3 lead 3 · prototype v0.1 · 2026-11-20 · Celo Sepolia only</span>
+  <h1>replay8004</h1>
+  <p>The first operating validator for ERC-8004's Validation Registry on Celo. An AI agent claims something an outsider can check on Celo (for example, that it paid for an API call). replay8004 re-checks the claim against chain state and answers on-chain with a score from 0 to 100, plus evidence anyone can recompute.</p>
+  <span class="stamp">Celo ValidationRegistry 0x8004Cc84…AB58 · 39 txs ever · last 2026-03-19 · 0 active validators found</span>
+</header>
+
+<section>
+  <h2>Demo: four requests, four verdicts</h2>
+  <p class="note">Output of <code>python -m examples.demo</code>: the real worker, checker and evidence code, run against a fake Celo Sepolia chain. Nothing was sent anywhere.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Request</th><th>Score</th><th>Why</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Agent #42: "I paid 0.01 USDC for the API call"</td><td><span class="score s-ok">100</span></td><td>transfer of 10000 confirmed with 101 confirmations</td><td class="hash">#1 · 0xeec0c3ba…569c97</td></tr>
+      <tr><td>Agent #43: "I paid 0.01 USDC" (only 0.0025 was paid)</td><td><span class="score s-mid">25</span></td><td>transferred 2500 &lt; claimed minimum 10000</td><td class="hash">#2 · 0xdb3e80b4…a8be1cef</td></tr>
+      <tr><td>Agent #44: "I paid the seller" (paid someone else)</td><td><span class="score s-bad">0</span></td><td>no matching Transfer log (token / from / to)</td><td class="hash">#3 · 0x5cdba40d…f4be7b98</td></tr>
+      <tr><td>Agent #45: job says mainnet, request is on Sepolia</td><td><span class="score s-bad">0</span></td><td>invalid job: job chainId does not match this network</td><td class="hash">#4 · 0xb749a0f1…361edaf2</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Each answer is <code>validationResponse(requestHash, score, responseURI, keccak256(bundle), tag)</code>. Bundles chain by hash, #1 → #4, so a skipped or edited answer shows up: <code>verify-evidence</code> reports "4 bundles, chain intact".</p>
+</section>
+
+<section>
+  <h2>How a validation flows</h2>
+<pre>agent owner ── validationRequest(validator, agentId, requestURI, keccak256(job)) ──▶ ValidationRegistry (Celo)
+                                                                                       │ ValidationRequest event
+replay8004 worker (every minute) ◀── eth_getLogs(topic1 = validator) ──────────────────┘
+  1  fetch requestURI (https / ipfs / inline data:) and check keccak256 == requestHash
+  2  check that the job's agentId and chainId match the on-chain request
+  3  re-run the claim against Celo; wait for confirmations, never answer early
+  4  write the evidence bundle (S3 Object Lock), hash-chained to the previous one
+  5  validationResponse(requestHash, score, responseURI, responseHash, tag)</pre>
+  <div class="tbl"><table>
+    <thead><tr><th>Claim kind</th><th>The agent says</th><th>Re-checked with</th></tr></thead>
+    <tbody>
+      <tr><td><code>erc20_transfer</code></td><td>Payment tx T moved ≥ X of token K from A to B (e.g. a settled x402 payment)</td><td>Receipt status, the <code>Transfer</code> log and confirmations. Score scales with the amount paid</td></tr>
+      <tr><td><code>erc20_balance</code></td><td>H held X of K at block N</td><td><code>balanceOf</code> via <code>eth_call</code> at block N, optional tolerance</td></tr>
+      <tr><td><code>contract_read</code></td><td>f(args) on contract C returned X at block N</td><td>The same <code>eth_call</code> at block N, ABI-decoded and compared</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Why this gap exists</h2>
+  <ul>
+    <li><strong>Identity and reputation are in use on Celo, validation isn't.</strong> The registry at <code>0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58</code> has had 39 transactions, all request/response test pairs, the last on 2026-03-19 (CeloScan). Self's own validation registry on Celo has 2 transactions, both role grants.</li>
+    <li><strong>Reputation alone is weak.</strong> A 2026 study of 173k ERC-8004 agents on Ethereum, BSC and Base found that 98.7–100% of feedback has no payment proof or task link, and that sybil reviewers make up 59–91% of reviewers. Its authors ask for feedback tied to a verifiable interaction such as a settled x402 payment, which is exactly the <code>erc20_transfer</code> check.</li>
+    <li><strong>The registry spec is still moving</strong> (the TEE section is under revision). replay8004 only uses the stable calls: <code>validationRequest</code>, <code>validationResponse</code> and <code>getSummary</code>.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Money</h2>
+  <dl class="kv">
+    <dt>Start cost</dt><dd>≈ US$3–15: about 50 CELO for gas (≈ US$2.75 at US$0.0549), plus an optional domain. Application and Self Agent ID cost nothing.</dd>
+    <dt>Gas per answer</dt><dd>0.0036 CELO in the registry's March transactions; at most ≈ 0.03 CELO (≈ US$0.002) at 202 gwei, the CeloScan figure on 2026-11-21.</dd>
+    <dt>AWS per month</dt><dd>≈ US$1: Lambda (arm64, every minute) and EventBridge stay inside the free tier. DynamoDB ≈ US$0.03, S3 Object Lock ≈ US$0.01, Secrets Manager US$0.40, Logs ≈ US$0.50. Not deployed.</dd>
+    <dt>Grant</dt><dd>Prezenti S3 Frontier: up to US$15,000 in USDm, 20% when the contract is signed. Draft ask US$12,000, so US$2,400 up front. Applications close 2026-12-29. Season 2 funded 2 of 34 Frontier applications.</dd>
+    <dt>Later</dt><dd>Paid validations through x402 at ≈ US$0.01–0.05 each for high-volume agents. Not validated.</dd>
+  </dl>
+</section>
+
+<section>
+  <h2>Steps only David can do</h2>
+  <ol>
+    <li>Make the repo public on GitHub. CI runs the tests and lints the template.</li>
+    <li>Create a validator-only wallet; keep its key in a password manager.</li>
+    <li>Run one full validation on Celo Sepolia with faucet CELO.</li>
+    <li>Get a Self Agent ID (passport scan in the Self app), and register the validator as an ERC-8004 agent on mainnet.</li>
+    <li>Buy about 50 CELO on a regulated exchange and run 5–10 real mainnet validations.</li>
+    <li>Offer free validations in the Celo forum and Discord, and open a PR to <code>celo-org/agent-skills</code>.</li>
+    <li>Submit the Frontier form (PROPOSAL.md) by about 2026-12-15, ahead of the 2026-12-29 close.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Files</h2>
+  <ul>
+    <li><a href="README.md">README.md</a> · <a href="COSTS.md">COSTS.md</a> · <a href="PROPOSAL.md">PROPOSAL.md</a> (Frontier draft) · <a href="LAUNCH.md">LAUNCH.md</a> · <a href="CLAUDE.md">CLAUDE.md</a> · <a href="LICENSE">LICENSE</a> (Apache-2.0)</li>
+    <li><a href="replay8004/worker.py">worker.py</a> · <a href="replay8004/registry.py">registry.py</a> · <a href="replay8004/job.py">job.py</a> · <a href="replay8004/evidence.py">evidence.py</a> · <a href="replay8004/store.py">store.py</a> · <a href="replay8004/rpc.py">rpc.py</a> · <a href="replay8004/networks.py">networks.py</a> · <a href="replay8004/cli.py">cli.py</a> · <a href="replay8004/lambda_handler.py">lambda_handler.py</a></li>
+    <li><a href="replay8004/checkers/__init__.py">checkers/__init__.py</a> · <a href="replay8004/checkers/erc20.py">checkers/erc20.py</a> · <a href="replay8004/checkers/read.py">checkers/read.py</a> · <a href="replay8004/hashing.py">hashing.py</a></li>
+    <li><a href="tests/test_checkers.py">test_checkers.py</a> · <a href="tests/test_registry_job.py">test_registry_job.py</a> · <a href="tests/test_worker.py">test_worker.py</a> · <a href="tests/conftest.py">conftest.py</a> · <a href="examples/demo.py">examples/demo.py</a> · <a href="examples/registration.json">registration.json</a> · <a href="infra/template.yaml">infra/template.yaml</a> · <a href="pyproject.toml">pyproject.toml</a> · <a href="ci.yml">ci.yml</a></li>
+  </ul>
+</section>
+</div>

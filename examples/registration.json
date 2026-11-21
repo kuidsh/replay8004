@@ -1,0 +1,17 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "replay8004 validator",
+  "description": "Re-execution validator for the ERC-8004 Validation Registry on Celo. Name this address as validatorAddress in validationRequest; jobs follow replay8004/job@1. Scores 0-100 with public, hash-chained evidence.",
+  "image": "https://<your-domain>/replay8004.png",
+  "services": [
+    {
+      "name": "web",
+      "endpoint": "https://github.com/<you>/replay8004"
+    },
+    {
+      "name": "validator",
+      "endpoint": "eip155:42220:<validator address>"
+    }
+  ],
+  "active": true
+}
