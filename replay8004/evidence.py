@@ -50,10 +50,12 @@ class LocalSink:
         self.folder.mkdir(parents=True, exist_ok=True)
         self.base_url = base_url.rstrip("/")
 
+    def url_for(self, bundle: dict) -> str:
+        return f"{self.base_url}/{bundle['requestHash']}.json"
+
     def put(self, bundle: dict) -> str:
-        name = f"{bundle['requestHash']}.json"
-        (self.folder / name).write_bytes(canonical(bundle))
-        return f"{self.base_url}/{name}"
+        (self.folder / f"{bundle['requestHash']}.json").write_bytes(canonical(bundle))
+        return self.url_for(bundle)
 
     def all(self) -> list[dict]:
         return [json.loads(p.read_bytes()) for p in self.folder.glob("0x*.json")]
@@ -64,10 +66,16 @@ class S3Sink:  # pragma: no cover - needs AWS
         import boto3
         self.s3, self.bucket, self.base_url, self.retain = boto3.client("s3"), bucket, base_url.rstrip("/"), retain_days
 
+    @staticmethod
+    def _key(bundle: dict) -> str:
+        return f"evidence/{bundle['requestHash']}.json"
+
+    def url_for(self, bundle: dict) -> str:
+        return f"{self.base_url}/{self._key(bundle)}"
+
     def put(self, bundle: dict) -> str:
         import datetime as dt
-        key = f"evidence/{bundle['requestHash']}.json"
         until = dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=self.retain)
-        self.s3.put_object(Bucket=self.bucket, Key=key, Body=canonical(bundle), ContentType="application/json",
-                           ObjectLockMode="COMPLIANCE", ObjectLockRetainUntilDate=until)
-        return f"{self.base_url}/{key}"
+        self.s3.put_object(Bucket=self.bucket, Key=self._key(bundle), Body=canonical(bundle),
+                           ContentType="application/json", ObjectLockMode="COMPLIANCE", ObjectLockRetainUntilDate=until)
+        return self.url_for(bundle)

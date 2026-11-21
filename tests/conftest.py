@@ -16,6 +16,17 @@ def t_addr(a):
     return "0x" + "00" * 12 + a[2:].lower()
 
 
+class FakeSender:
+    """Stands in for registry.Sender: records (to, calldata) and returns a fake tx hash. No key."""
+
+    def __init__(self, address=VALIDATOR):
+        self.address, self.sent = address, []
+
+    def send(self, to, data):
+        self.sent.append((to, data))
+        return "0x" + keccak(data.encode()).hex()
+
+
 class FakeRpc:
     def __init__(self, chain_id=11142220, head=1_000):
         self.cid, self.head = chain_id, head
