@@ -118,6 +118,34 @@ def test_decode_real_get_summary():
     assert registry.decode_summary(raw) == (17, 99)
 
 
+def test_decode_real_validation_status():
+    # getValidationStatus(0x03245a62..) on Celo Sepolia after testnet run 1 (docs/TESTNET-RUN.md)
+    from eth_abi import encode
+    raw = "0x" + encode(["address", "uint256", "uint8", "bytes32", "string", "uint256"], [
+        "0x163296ca93f9887dD10e3053Ea0459c49A770A86", 1037, 100,
+        bytes.fromhex("ec2ffe478397dadb6416ac7ddaddd9c0cf0fb9db0792cab150c1386f5639bedf"),
+        "replay:erc20_transfer", 1795242244]).hex()
+    assert registry.decode_status(raw) == {
+        "validator": "0x163296ca93f9887dd10e3053ea0459c49a770a86", "agentId": 1037, "response": 100,
+        "responseHash": "0xec2ffe478397dadb6416ac7ddaddd9c0cf0fb9db0792cab150c1386f5639bedf",
+        "tag": "replay:erc20_transfer", "lastUpdate": 1795242244}
+    assert registry.encode_status("0x" + "ab" * 32)[:10] == "0xff2febfc"
+
+
+def test_testnet_run_evidence_matches_on_chain_response_hashes():
+    # the two bundles answered on Celo Sepolia; responseHash values read back with getValidationStatus
+    folder = Path(__file__).parents[1] / "docs" / "testnet" / "evidence"
+    on_chain = {"0x03245a62e38e4ff64d57f70d2d86b76369c9a0e1fe9dafe511373e5913d8adae":
+                "0xec2ffe478397dadb6416ac7ddaddd9c0cf0fb9db0792cab150c1386f5639bedf",
+                "0xba24d0e582c8f3f087f1631ea30b65f63491f32359b9758f1410bb1be63b99da":
+                "0xe808e607f435860511e8dafb375d863115da3e1d748c42e3108b68642cdba80a"}
+    from replay8004 import evidence
+    from replay8004.hashing import keccak
+    for req, resp in on_chain.items():
+        assert "0x" + keccak((folder / f"{req}.json").read_bytes()).hex() == resp
+    assert evidence.verify_chain(evidence.LocalSink(folder, "x").all()) == (True, "2 bundles, chain intact")
+
+
 # -- forno rejects urllib's default User-Agent with HTTP 403 --------------------------------------
 
 class _Resp:

@@ -50,6 +50,19 @@ def decode_summary(raw: str) -> tuple[int, int]:
     return int(count), int(avg)
 
 
+def encode_status(request_hash: str) -> str:
+    return "0x" + (_sel(SIG_STATUS) + encode(["bytes32"], [hex32(request_hash)])).hex()
+
+
+def decode_status(raw: str) -> dict:
+    """getValidationStatus -> (validatorAddress, agentId, response, responseHash, tag, lastUpdate).
+    The call reverts ("unknown") for a requestHash that was never requested."""
+    va, agent, resp, rh, tag, last = decode(["address", "uint256", "uint8", "bytes32", "string", "uint256"],
+                                            bytes.fromhex(raw[2:]))
+    return {"validator": va.lower(), "agentId": int(agent), "response": int(resp), "responseHash": "0x" + rh.hex(),
+            "tag": tag, "lastUpdate": int(last)}
+
+
 def decode_request_log(log: dict) -> dict:
     t = log["topics"]
     if t[0].lower() != TOPIC_REQUEST:

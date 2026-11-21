@@ -1,3 +1,4 @@
 * text=auto eol=lf
 *.png binary
 tests/fixtures/job-*.json -text
+docs/testnet/**/*.json -text

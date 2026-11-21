@@ -1,6 +1,6 @@
 # replay8004: a re-execution validator for ERC-8004 on Celo
 
-**Status: v0.1.1 (2026-11-21). Celo Sepolia by default. 44 tests pass. Checked against live Celo (docs/VERIFICATION.md). Not deployed.**
+**Status: v0.1.1 (2026-11-21). Celo Sepolia by default. 52 tests pass. Checked against live Celo (docs/VERIFICATION.md) and run end to end on Celo Sepolia (docs/TESTNET-RUN.md). Not on mainnet yet.**
 
 ERC-8004 gives AI agents three on-chain registries: identity, reputation and **validation**. On
 Celo the first two are in use. The Validation Registry
@@ -42,7 +42,7 @@ never answered twice.
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest -q                                  # 44 tests, fake chain, no network
+pytest -q                                  # 52 tests, fake chain, no network
 replay8004 job erc20-transfer --agent-id 42 --validator 0xVALIDATOR \
   --tx 0xPAYMENT_TX --token 0xTOKEN --to 0xPAYEE --min-amount 10000 --out job.json
 # prints requestHash, an inline data: requestURI and the validationRequest calldata
@@ -89,7 +89,8 @@ sam deploy --guided --parameter-overrides ValidatorAddress=0x... Network=celo-se
 | `replay8004/registry.py` | ValidationRegistry calldata, event decoding, `getSummary`, transaction signer |
 | `replay8004/worker.py` | scan → decide → evidence → respond, with pending retries and no double answers |
 | `replay8004/lambda_handler.py`, `infra/template.yaml` | AWS deployment (not deployed) |
-| `replay8004/cli.py` | `job`, `check`, `run`, `summary`, `verify-evidence` |
+| `replay8004/cli.py` | `job`, `check`, `run`, `summary`, `status`, `verify-evidence` |
+| `replay8004/identity.py`, `scripts/register_agent.py` | IdentityRegistry `register(agentURI)` and `Registered` decoding; dry-run-first registration script |
 
 ## Roadmap
 - **v0.2:** Self Agent ID for the validator itself; register the validator as an ERC-8004 agent;

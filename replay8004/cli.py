@@ -9,6 +9,7 @@ Validator side:
 Anyone:
   replay8004 check job.json                          re-run a job locally, nothing written on-chain
   replay8004 summary --agent-id 42 --validator 0x.. [--tag replay:erc20_transfer]
+  replay8004 status --request-hash 0x..             getValidationStatus: who answered, score, responseHash, tag
   replay8004 verify-evidence .replay8004/evidence    recompute hashes and the evidence chain
 Network: --network celo-sepolia (default) | celo-mainnet (needs REPLAY8004_ALLOW_MAINNET=1).
 """
@@ -102,6 +103,12 @@ def cmd_summary(a):
     print(json.dumps({"agentId": a.agent_id, "count": count, "avgResponse": avg, "tag": a.tag}))
 
 
+def cmd_status(a):
+    net = _net(a)
+    raw = Rpc(a.rpc or net.rpc).eth_call(net.validation, registry.encode_status(a.request_hash))
+    print(json.dumps({"requestHash": a.request_hash.lower(), **registry.decode_status(raw)}))
+
+
 def cmd_verify(a):
     bundles = evidence.LocalSink(a.folder, "file://").all()
     for b in bundles:
@@ -152,6 +159,10 @@ def main(argv=None):
     s.add_argument("--validator", action="append")
     s.add_argument("--tag", default="")
     s.set_defaults(fn=cmd_summary)
+
+    st = sub.add_parser("status")
+    st.add_argument("--request-hash", required=True)
+    st.set_defaults(fn=cmd_status)
 
     v = sub.add_parser("verify-evidence"); v.add_argument("folder"); v.set_defaults(fn=cmd_verify)
 
