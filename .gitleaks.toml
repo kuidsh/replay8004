@@ -1,0 +1,12 @@
+title = "replay8004 gitleaks config"
+
+[extend]
+useDefault = true
+
+# A bare 20-byte EVM address (0x + 40 hex) is public data, e.g. a token contract under a "token" JSON
+# key, which the generic-api-key rule otherwise flags. Private keys are 32 bytes (64 hex) and are NOT
+# matched by this allowlist, so they are still reported.
+[[allowlists]]
+description = "public 20-byte EVM addresses"
+regexTarget = "secret"
+regexes = ['''^0x[0-9a-fA-F]{40}$''']

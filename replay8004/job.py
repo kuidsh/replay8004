@@ -13,6 +13,7 @@ import urllib.request
 
 from .checkers import CHECKERS
 from .hashing import canonical, keccak
+from .rpc import USER_AGENT
 
 SCHEMA = "replay8004/job@1"
 MAX_JOB_BYTES = 64 * 1024
@@ -44,7 +45,8 @@ def fetch(uri: str, opener=None) -> bytes:
         raw = base64.b64decode(payload) if head.endswith(";base64") else urllib.parse.unquote_to_bytes(payload)
     elif uri.startswith(("https://", "ipfs://")):
         url = IPFS_GATEWAY + uri[len("ipfs://"):] if uri.startswith("ipfs://") else uri
-        with (opener or urllib.request.urlopen)(url, timeout=15) as r:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with (opener or urllib.request.urlopen)(req, timeout=15) as r:
             raw = r.read(MAX_JOB_BYTES + 1)
     else:
         raise JobError("requestURI must be https://, ipfs:// or data:")

@@ -86,7 +86,7 @@ def cmd_run(a):
             sys.exit("REPLAY8004_VALIDATOR_KEY does not match --validator")
     base = Path(a.state_dir)
     w = Worker(network=net, rpc=rpc, validator=a.validator, sender=sender,
-               store=FileStore(base / f"state-{net.name}.json", start_block=a.start_block),
+               store=FileStore(base / f"state-{net.name}.json", start_block=a.start_block or net.validation_deploy_block),
                sink=LocalSink(base / "evidence", a.evidence_base_url))
     while True:
         print(json.dumps(w.poll_once(), indent=2, default=str))
@@ -141,7 +141,8 @@ def main(argv=None):
     r.add_argument("--send", action="store_true", help="really send validationResponse (default: dry run)")
     r.add_argument("--once", action="store_true")
     r.add_argument("--interval", type=int, default=30)
-    r.add_argument("--start-block", type=int, default=0)
+    r.add_argument("--start-block", type=int, default=0,
+                   help="first block to scan on a fresh state file (default: the registry's deployment block)")
     r.add_argument("--state-dir", default=".replay8004")
     r.add_argument("--evidence-base-url", default="https://example.invalid/evidence")
     r.set_defaults(fn=cmd_run)

@@ -27,6 +27,7 @@ Parameters:
   StartBlock:
     Type: Number
     Default: 0
+    Description: First block to scan on empty state. 0 means the ValidationRegistry's deployment block.
   EvidenceRetentionDays:
     Type: Number
     Default: 365

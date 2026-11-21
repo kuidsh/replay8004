@@ -1,6 +1,6 @@
 # replay8004: a re-execution validator for ERC-8004 on Celo
 
-**Status: v0.1 (2026-11-20). Celo Sepolia by default. 32 tests pass. Not deployed.**
+**Status: v0.1.1 (2026-11-21). Celo Sepolia by default. 44 tests pass. Checked against live Celo (docs/VERIFICATION.md). Not deployed.**
 
 ERC-8004 gives AI agents three on-chain registries: identity, reputation and **validation**. On
 Celo the first two are in use. The Validation Registry
@@ -42,7 +42,7 @@ never answered twice.
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest -q                                  # 32 tests, fake chain, no network
+pytest -q                                  # 44 tests, fake chain, no network
 replay8004 job erc20-transfer --agent-id 42 --validator 0xVALIDATOR \
   --tx 0xPAYMENT_TX --token 0xTOKEN --to 0xPAYEE --min-amount 10000 --out job.json
 # prints requestHash, an inline data: requestURI and the validationRequest calldata
@@ -52,7 +52,7 @@ cast send 0x8004Cb1BF31DAf7788923b405b754f57acEB4272 <calldata> --rpc-url https:
 
 ## Run the validator
 ```bash
-replay8004 run --validator 0xVALIDATOR --once                 # dry run: prints the calldata it would send
+replay8004 run --validator 0xVALIDATOR --once --start-block N  # dry run: prints the calldata it would send; N = block the validator went live (default: registry deployment block)
 export REPLAY8004_VALIDATOR_KEY=0x...                         # a key used ONLY for this validator, from a secrets manager
 replay8004 run --validator 0xVALIDATOR --send --interval 30   # Celo Sepolia
 REPLAY8004_ALLOW_MAINNET=1 replay8004 --network celo-mainnet run --validator 0x... --send   # operator decision

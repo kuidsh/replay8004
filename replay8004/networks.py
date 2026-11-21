@@ -12,6 +12,9 @@ class Network:
     validation: str
     explorer: str
     mainnet: bool
+    # block of the ValidationRegistry proxy's first log (Upgraded/Initialized); no request can be older,
+    # so the worker starts scanning here instead of at genesis (Blockscout, checked 2026-11-21)
+    validation_deploy_block: int = 0
 
 
 CELO_SEPOLIA = Network(
@@ -19,14 +22,16 @@ CELO_SEPOLIA = Network(
     identity="0x8004A818BFB912233c491871b3d84c89A494BD9e",
     reputation="0x8004B663056A597Dffe9eCcC1965A193B7388713",
     validation="0x8004Cb1BF31DAf7788923b405b754f57acEB4272",
-    explorer="https://celo-sepolia.blockscout.com", mainnet=False)
+    explorer="https://celo-sepolia.blockscout.com", mainnet=False,
+    validation_deploy_block=17_013_556)
 
 CELO_MAINNET = Network(
     "celo-mainnet", 42220, "https://forno.celo.org",
     identity="0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
     reputation="0x8004BAa17C55a88189AE136b182e5fdA19dE9b63",
     validation="0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58",
-    explorer="https://celoscan.io", mainnet=True)
+    explorer="https://celoscan.io", mainnet=True,
+    validation_deploy_block=58_396_736)
 
 NETWORKS = {n.name: n for n in (CELO_SEPOLIA, CELO_MAINNET)}
 

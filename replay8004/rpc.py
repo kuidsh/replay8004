@@ -5,6 +5,12 @@ import json
 import time
 import urllib.request
 
+from . import __version__
+
+# Celo's forno RPC (and other Cloudflare-fronted hosts) return HTTP 403 to urllib's default
+# "Python-urllib/3.x" User-Agent: always on forno.celo.org, sometimes on Celo Sepolia (checked 2026-11-20).
+USER_AGENT = f"replay8004/{__version__}"
+
 
 class RpcError(RuntimeError):
     pass
@@ -21,7 +27,8 @@ class Rpc:
         last = None
         for attempt in range(self.retries + 1):
             try:
-                req = urllib.request.Request(self.url, data=body, headers={"Content-Type": "application/json"})
+                req = urllib.request.Request(self.url, data=body, headers={"Content-Type": "application/json",
+                                                                           "User-Agent": USER_AGENT})
                 with urllib.request.urlopen(req, timeout=self.timeout) as r:
                     out = json.loads(r.read())
                 if "error" in out:

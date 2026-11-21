@@ -25,7 +25,7 @@ def handler(event, context):  # pragma: no cover - needs AWS
     sender = None if dry else Sender(rpc, net.chain_id, _secret(os.environ["VALIDATOR_KEY_SECRET_ARN"]))
     validator = sender.address if sender else os.environ["VALIDATOR_ADDRESS"]
     w = Worker(network=net, rpc=rpc, validator=validator, sender=sender,
-               store=DynamoStore(os.environ["STATE_TABLE"], start_block=int(os.environ.get("START_BLOCK", "0"))),
+               store=DynamoStore(os.environ["STATE_TABLE"], start_block=int(os.environ.get("START_BLOCK", "0")) or net.validation_deploy_block),
                sink=S3Sink(os.environ["EVIDENCE_BUCKET"], os.environ["EVIDENCE_BASE_URL"]))
     out = w.poll_once()
     print(json.dumps({k: v for k, v in out.items() if k != "answered"} | {"answered": len(out["answered"])}))

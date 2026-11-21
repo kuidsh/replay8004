@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "replay8004"
-version = "0.1.0"
+version = "0.1.1"
 description = "Re-execution validator for the ERC-8004 Validation Registry on Celo: checks on-chain claims made by AI agents and answers with hash-chained evidence."
 readme = "README.md"
 license = "Apache-2.0"
