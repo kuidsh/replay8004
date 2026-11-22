@@ -63,6 +63,10 @@ Registry activity on mainnet: 39 txs, 21 requests and 17 responses, the last on 
 Range limits for `eth_getLogs` on forno: Sepolia accepts 100,000 blocks but not 1,000,000. Mainnet
 accepts 5,000 but not 10,000. The worker's chunk size of 5,000 works on both.
 
+Retention on forno (measured later on 2026-11-21/22): Sepolia serves receipts 10,000 blocks back but
+no blocks or state 20,000 back. Mainnet serves receipts 200,000 blocks back but not 1,000,000. Older
+payments need an archive RPC (`--rpc`). A missing receipt is treated as undecidable and is never scored.
+
 ## End-to-end check on mainnet (read-only)
 Payment used: [`0x52659095…1875`](https://celoscan.io/tx/0x52659095845053c3411eadea3cc9b8cc91c0cb0a3ff1da9f46289b3b5acd1875),
 a plain USDC `transfer()` (`0xcebA9300f2b948710d2653dD7B07f33A8B32118C`, 6 decimals). It sent 10 USDC
@@ -81,8 +85,8 @@ A dry run of `replay8004 run --once` on Celo Sepolia (no key, recent start block
 
 ## What changed in the code
 1. **User-Agent (bug).** `forno.celo.org` answers HTTP 403 to urllib's default `Python-urllib/3.x`
-   User-Agent (6 of 6 calls), and Celo Sepolia did so at least once. A custom User-Agent gets 200
-   (6 of 6). `Rpc` and the `https://` job fetch now send `User-Agent: replay8004/<version>`.
+   User-Agent on every call tried. Celo Sepolia forno accepts it. A custom User-Agent
+   gets 200 on both. `Rpc` and the `https://` job fetch now send `User-Agent: replay8004/<version>`.
    Before this fix, every mainnet RPC call from the validator failed.
 2. **Scan start.** A fresh state used to scan from block 0. It now starts at the
    ValidationRegistry's deployment block (`Network.validation_deploy_block`) unless

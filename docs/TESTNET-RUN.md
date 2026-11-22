@@ -59,13 +59,15 @@ which resolves once the repository is public. Job 1 was sent as an inline `data:
 replay8004 status --request-hash 0x03245a62e38e4ff64d57f70d2d86b76369c9a0e1fe9dafe511373e5913d8adae
 replay8004 summary --agent-id 1037 --validator 0x163296ca93f9887dD10e3053Ea0459c49A770A86
 replay8004 verify-evidence docs/testnet/evidence
-replay8004 check docs/testnet/job-1-good.json         # re-runs the claim against Sepolia: 100
+replay8004 --rpc <ARCHIVE_RPC> check docs/testnet/job-1-good.json   # re-runs the claim
 ```
+Sepolia forno prunes receipts within hours, so it can no longer re-run job 1. `check` originally scored
+100, then scored 0 ("transaction not found") once the receipt was pruned. That was a checker bug, found
+after this run: `check` now reports such a job as undecidable. The on-chain answer is unaffected.
 
 ## How it was run
 - Wallets were created by the operator in their own terminal (`scripts/new_wallets.py`). The keys
-  were kept in a password manager and a git-ignored `.env`, loaded into the environment only for the
-  command that signs. They were never printed or logged.
+  were kept in a git-ignored `.env` and loaded into the environment only for the commands that sign.
 - Agent: `python scripts/register_agent.py --send` (register(string), with agentId read from the `Registered` event).
 - Job 1: `replay8004 job erc20-transfer --agent-id 1037 --tx 0xa6552a0b… --token 0x471EcE…a438 --from <owner> --to <validator> --min-amount 10000000000000000`.
 - Validator: `replay8004 run --validator 0x1632…0A86 --send --once --evidence-base-url https://raw.githubusercontent.com/kuidsh/replay8004/main/docs/testnet/evidence`.

@@ -131,6 +131,18 @@ def test_rpc_failure_keeps_request_pending(tmp_path):
     assert out["answered"] == [] and out["pending"] == 1
 
 
+def test_missing_receipt_is_never_answered_and_recovers(tmp_path):
+    # forno prunes receipts: a real old payment looks missing, and must not get a permanent on-chain 0
+    rpc, w = setup(tmp_path)
+    h = request(rpc, CLAIM)
+    for _ in range(w.max_pending_polls + 5):
+        out = w.poll_once()
+        assert out["answered"] == [] and out["pending"] == 1
+    assert w.sender.sent == [] and not (tmp_path / "ev" / f"{h}.json").exists()
+    rpc.add_transfer(TX, USDC, PAYER, PAYEE, 10_000, block=940)  # e.g. moved to an archive RPC
+    assert w.poll_once()["answered"][0]["score"] == 100
+
+
 def test_evidence_chain_and_tamper_detection(tmp_path):
     rpc, w = setup(tmp_path)
     for i in range(3):
@@ -144,6 +156,16 @@ def test_evidence_chain_and_tamper_detection(tmp_path):
     edited[0]["verdict"]["score"] = 1
     assert not evidence.verify_chain(edited)[0]
     assert "gap" in evidence.verify_chain([b for b in edited if b["seq"] != 2])[1]
+
+
+def test_cli_check_reports_missing_receipt_as_undecidable(tmp_path, capsys, monkeypatch):
+    from replay8004 import cli
+    monkeypatch.setattr(cli, "Rpc", lambda url: FakeRpc())
+    job = tmp_path / "job.json"
+    job.write_bytes(jobmod.make_job(42, NET.chain_id, "erc20_transfer", CLAIM))
+    cli.main(["check", str(job)])
+    out = json.loads(capsys.readouterr().out)
+    assert out["decidable"] is False and "no receipt" in out["reason"] and "score" not in out
 
 
 def test_cli_job_prints_request_calldata(tmp_path, capsys, monkeypatch):

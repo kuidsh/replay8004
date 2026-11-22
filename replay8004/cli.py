@@ -24,7 +24,7 @@ from pathlib import Path
 
 from . import evidence, job as jobmod, networks, registry
 from .checkers import CHECKERS, Verdict
-from .rpc import Rpc
+from .rpc import ReceiptUnavailable, Rpc
 
 
 def _net(a):
@@ -65,7 +65,11 @@ def cmd_check(a):
     net = _net(a)
     raw = Path(a.job).read_bytes()
     job = jobmod.parse(raw, jobmod.request_hash(raw), int(json.loads(raw)["agentId"]), net.chain_id)
-    v = CHECKERS[job["kind"]](job["claim"], Rpc(a.rpc or net.rpc), Verdict)
+    try:
+        v = CHECKERS[job["kind"]](job["claim"], Rpc(a.rpc or net.rpc), Verdict)
+    except ReceiptUnavailable as e:
+        print(json.dumps({"decidable": False, "reason": str(e)}, indent=2))
+        return
     print(json.dumps({"decidable": v is not None, **({"score": v.score, "findings": v.findings,
                                                        "observed": v.observed} if v else {})}, indent=2))
 

@@ -4,6 +4,7 @@ from eth_abi import encode
 from replay8004.checkers import CHECKERS, Verdict
 from replay8004.checkers.erc20 import TRANSFER_TOPIC
 from replay8004.hashing import keccak
+from replay8004.rpc import ReceiptUnavailable
 from tests.conftest import PAYEE, PAYER, USDC, FakeRpc
 
 TX = "0x" + "aa" * 32
@@ -40,7 +41,8 @@ def test_transfer_wrong_party_or_token(kw):
 def test_transfer_reverted_and_missing():
     rpc = FakeRpc(); rpc.add_transfer(TX, USDC, PAYER, PAYEE, 10_000, block=990, status=0)
     assert transfer(rpc).findings == ["transaction reverted"]
-    assert transfer(FakeRpc()).findings == ["transaction not found"]
+    with pytest.raises(ReceiptUnavailable):  # a missing receipt is unknown (pruned RPC), never a 0
+        transfer(FakeRpc())
 
 
 def test_transfer_waits_for_confirmations():

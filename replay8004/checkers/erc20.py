@@ -4,6 +4,7 @@ from __future__ import annotations
 from eth_abi import decode, encode
 
 from ..hashing import keccak
+from ..rpc import ReceiptUnavailable
 
 TRANSFER_TOPIC = "0x" + keccak(b"Transfer(address,address,uint256)").hex()
 BALANCE_OF = "0x" + keccak(b"balanceOf(address)")[:4].hex()
@@ -31,7 +32,8 @@ def check_erc20_transfer(claim: dict, rpc, verdict_cls):
 
     rec = rpc.receipt(claim["txHash"])
     if rec is None:
-        return verdict_cls(0, ["transaction not found"], {"txHash": claim["txHash"]})
+        # unknown, not false: pending until an RPC that keeps the receipt can decide
+        raise ReceiptUnavailable(f"no receipt for {claim['txHash']} (unknown tx, or pruned by this RPC)")
     head = rpc.block_number()
     tx_block = int(rec["blockNumber"], 16)
     conf = head - tx_block + 1

@@ -7,13 +7,18 @@ import urllib.request
 
 from . import __version__
 
-# Celo's forno RPC (and other Cloudflare-fronted hosts) return HTTP 403 to urllib's default
-# "Python-urllib/3.x" User-Agent: always on forno.celo.org, sometimes on Celo Sepolia (checked 2026-11-20).
+# forno.celo.org returns HTTP 403 to urllib's default "Python-urllib/3.x" User-Agent on every call tried;
+# Celo Sepolia forno accepts it (checked 2026-11-20 and 2026-11-21).
 USER_AGENT = f"replay8004/{__version__}"
 
 
 class RpcError(RuntimeError):
     pass
+
+
+class ReceiptUnavailable(RpcError):
+    """The RPC returned no receipt. That is NOT proof the tx does not exist: forno prunes old receipts
+    (Celo Sepolia after 10-20k blocks, mainnet after 200k-1M), so it must never be scored 0."""
 
 
 class Rpc:
