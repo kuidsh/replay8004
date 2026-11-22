@@ -75,9 +75,9 @@ Resources:
   WorkerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ..
+      CodeUri: ../build/lambda
       Handler: replay8004.lambda_handler.handler
-      Runtime: python3.12
+      Runtime: python3.11
       Architectures: [arm64]
       MemorySize: 256
       Timeout: 50
