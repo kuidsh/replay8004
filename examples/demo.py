@@ -31,7 +31,7 @@ def main():
         h = jobmod.request_hash(raw)
         rpc.add_request(NET.validation, VALIDATOR, agent, jobmod.data_uri(raw), h, 950 + i)
         labels[h] = label
-    w = Worker(network=NET, rpc=rpc, validator=VALIDATOR, sender=FakeSender(),  # fake chain, fake sender: no key
+    w = Worker(network=NET, rpc=rpc, validator=VALIDATOR, sender=FakeSender(rpc),  # fake chain, fake sender: no key
                store=FileStore(tmp / "s.json", start_block=900),
                sink=LocalSink(tmp / "ev", "https://evidence.example"), clock=lambda: "2026-11-20T12:00:00+00:00")
     out = w.poll_once()

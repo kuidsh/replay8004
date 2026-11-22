@@ -5,7 +5,7 @@ cannot do them. Total cost ≈ US$3–15.
 
 | # | step | why | cost | time |
 |---|---|---|---|---|
-| 1 | Create a **public GitHub repo** `replay8004` and push this code (CI runs pytest) | Frontier asks for GitHub and open source | free | 5 min |
+| 1 | Push to the **private** GitHub repo `replay8004` (CI runs pytest). Make it public before step 9: see docs/PHASE6-CHECKLIST.md | Frontier asks for GitHub and open source | free | 5 min |
 | 2 | Create a **validator-only wallet** (e.g. `cast wallet new`, or MetaMask). Store the key in a password manager; never reuse a wallet that holds savings | the validator signs `validationResponse` | free | 5 min |
 | 3 | **Celo Sepolia test**: get faucet CELO (faucet.celo.org may need a sign-in), run `replay8004 run --validator <addr> --send`, then send one `validationRequest` from a test agent and confirm the answer on Blockscout | prove the flow before mainnet | free | 30 min |
 | 4 | **Self Agent ID** (`npm i -g @selfxyz/agent-sdk`, `self-agent register init --network mainnet`, scan your passport in the Self app) | Frontier requirement | free | 15 min |

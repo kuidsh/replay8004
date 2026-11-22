@@ -12,8 +12,8 @@ NET = networks.CELO_SEPOLIA
 TX = "0x" + "aa" * 32
 
 
-def make_worker(tmp_path, rpc, dry=False):
-    return Worker(network=NET, rpc=rpc, validator=VALIDATOR, sender=None if dry else FakeSender(),
+def make_worker(tmp_path, rpc, dry=False, mode="ok"):
+    return Worker(network=NET, rpc=rpc, validator=VALIDATOR, sender=None if dry else FakeSender(rpc, mode=mode),
                   store=FileStore(tmp_path / "s.json", start_block=900),
                   sink=LocalSink(tmp_path / "ev", "https://ev.example"), clock=lambda: "2026-11-20T00:00:00+00:00")
 

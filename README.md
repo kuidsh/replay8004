@@ -1,11 +1,12 @@
 # replay8004: a re-execution validator for ERC-8004 on Celo
 
-**Status: v0.1.1 (2026-11-21). Celo Sepolia by default. 54 tests pass. Checked against live Celo (docs/VERIFICATION.md) and run end to end on Celo Sepolia (docs/TESTNET-RUN.md). Not on mainnet yet.**
+**Status: v0.1.1 (2026-11-21). Celo Sepolia by default. 74 tests pass. Checked against live Celo (docs/VERIFICATION.md) and run end to end on Celo Sepolia (docs/TESTNET-RUN.md). Not on mainnet yet.**
 
 ERC-8004 gives AI agents three on-chain registries: identity, reputation and **validation**. On
 Celo the first two are in use. The Validation Registry
 (`0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58` on mainnet) has had 39 transactions in total, the last
-on 2026-03-19, and no validator operates there. Without validators, "trust" on Celo comes down to
+on 2026-03-19. Its 21 requests were all for one agent (#1870) on that one day; 17 were answered, each by
+a different address, and nothing has been requested or answered since. Without active validators, "trust" on Celo comes down to
 reputation feedback. A 2026 study of 173k ERC-8004 agents found 98.7–100% of that feedback has no
 payment proof or task link, and sybil reviewers dominate it.
 
@@ -42,7 +43,7 @@ never answered twice.
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest -q                                  # 54 tests, fake chain, no network
+pytest -q                                  # 74 tests, fake chain, no network
 replay8004 job erc20-transfer --agent-id 42 --validator 0xVALIDATOR \
   --tx 0xPAYMENT_TX --token 0xTOKEN --to 0xPAYEE --min-amount 10000 --out job.json
 # prints requestHash, an inline data: requestURI and the validationRequest calldata
@@ -54,8 +55,8 @@ cast send 0x8004Cb1BF31DAf7788923b405b754f57acEB4272 <calldata> --rpc-url https:
 ```bash
 replay8004 run --validator 0xVALIDATOR --once --start-block N  # dry run: prints the calldata it would send; N = block the validator went live (default: registry deployment block)
 export REPLAY8004_VALIDATOR_KEY=0x...                         # a key used ONLY for this validator, from a secrets manager
-replay8004 run --validator 0xVALIDATOR --send --interval 30   # Celo Sepolia
-REPLAY8004_ALLOW_MAINNET=1 replay8004 --network celo-mainnet run --validator 0x... --send   # operator decision
+replay8004 run --validator 0xVALIDATOR --send --interval 30 --evidence-base-url https://PUBLIC_HOST/evidence   # Celo Sepolia
+REPLAY8004_ALLOW_MAINNET=1 replay8004 --network celo-mainnet run --validator 0x... --send --evidence-base-url https://PUBLIC_HOST/evidence   # operator decision
 replay8004 verify-evidence .replay8004/evidence               # recompute hashes and the chain
 ```
 Gas on Celo can be paid in stablecoins (fee abstraction). v0.1 pays in CELO: 0.0036 CELO per

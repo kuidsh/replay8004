@@ -8,7 +8,8 @@ from .evidence import GENESIS
 
 
 def empty(start_block: int) -> dict:
-    return {"last_block": start_block - 1, "done": {}, "pending": {}, "seq": 0, "head": GENESIS}
+    return {"last_block": start_block - 1, "done": {}, "pending": {}, "inflight": {}, "failed": {},
+            "seq": 0, "head": GENESIS}
 
 
 class FileStore:

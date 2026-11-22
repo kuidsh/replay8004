@@ -4,6 +4,8 @@ Dry run by default: prints from / to / calldata / gas estimate / cost and sends 
   python scripts/register_agent.py --name "replay8004 test agent" --description "..."      # Celo Sepolia
   python scripts/register_agent.py --agent-uri https://.../registration.json --send
 Mainnet needs --network celo-mainnet AND REPLAY8004_ALLOW_MAINNET=1 (operator decision).
+--registration FILE --validator-address 0x.. embeds a JSON template as a data: URI and shows the decoded JSON
+and its size. --from 0x.. does a dry run without any key.
 The signing key is read from the OWNER_KEY environment variable only and is never printed.
 """
 from __future__ import annotations
@@ -37,6 +39,9 @@ def main() -> None:
     ap.add_argument("--network", default="celo-sepolia", choices=sorted(networks.NETWORKS))
     ap.add_argument("--rpc")
     ap.add_argument("--agent-uri", help="https://, ipfs:// or data: URI of the registration JSON")
+    ap.add_argument("--registration", help="registration JSON template to embed as a data: URI")
+    ap.add_argument("--validator-address", help="fills <validator address> in the template")
+    ap.add_argument("--from", dest="from_", help="dry run only: sender address, no key needed")
     ap.add_argument("--name", default="replay8004 test agent")
     ap.add_argument("--description", default="Test agent used to exercise the replay8004 validator on Celo Sepolia.")
     ap.add_argument("--send", action="store_true", help="really send (default: dry run)")
@@ -44,18 +49,35 @@ def main() -> None:
 
     net = networks.get(a.network, allow_mainnet=os.environ.get("REPLAY8004_ALLOW_MAINNET") == "1")
     rpc = Rpc(a.rpc or net.rpc)
-    key = os.environ.get("OWNER_KEY")
-    if not key:
-        sys.exit("set OWNER_KEY (the agent owner's key) in the environment")
-    sender = Sender(rpc, net.chain_id, key)  # also checks the RPC chain id
-    del key
+    if a.from_:
+        if a.send:
+            sys.exit("--from is for dry runs only")
+        sender, addr = None, a.from_
+    else:
+        key = os.environ.get("OWNER_KEY")
+        if not key:
+            sys.exit("set OWNER_KEY (the agent owner's key) in the environment, or use --from for a dry run")
+        sender = Sender(rpc, net.chain_id, key)  # also checks the RPC chain id
+        del key
+        addr = sender.address
 
-    uri = a.agent_uri or identity.data_uri(identity.registration_json(a.name, a.description))
+    if a.registration:
+        text = Path(a.registration).read_text(encoding="utf-8")
+        if a.validator_address:
+            text = text.replace("<validator address>", a.validator_address)
+        if "<" in text:
+            sys.exit("the registration file still has a <placeholder>")
+        doc = json.loads(text)
+        uri = identity.data_uri(doc)
+        print(json.dumps({"decodedRegistration": json.loads(identity.decode_data_uri(uri)),
+                          "jsonBytes": len(identity.decode_data_uri(uri)), "dataUriBytes": len(uri)}, indent=2))
+    else:
+        uri = a.agent_uri or identity.data_uri(identity.registration_json(a.name, a.description))
     data = identity.encode_register(uri)
-    gas = int(rpc.call("eth_estimateGas", [{"from": sender.address, "to": net.identity, "data": data}]), 16)
+    gas = int(rpc.call("eth_estimateGas", [{"from": addr, "to": net.identity, "data": data}]), 16)
     price = int(rpc.call("eth_gasPrice", []), 16)
-    bal = int(rpc.call("eth_getBalance", [sender.address, "latest"]), 16)
-    plan = {"network": net.name, "chainId": net.chain_id, "from": sender.address, "to": net.identity,
+    bal = int(rpc.call("eth_getBalance", [addr, "latest"]), 16)
+    plan = {"network": net.name, "chainId": net.chain_id, "from": addr, "to": net.identity,
             "function": "register(string agentURI)", "agentURI": uri if len(uri) <= 300 else uri[:300] + "...",
             "data": data, "gasEstimate": gas, "gasPriceGwei": round(price / 1e9, 3),
             "estCostCELO": round(gas * 1.2 * price / 1e18, 8), "maxCostCELO": round(gas * 1.2 * price * 2 / 1e18, 8),

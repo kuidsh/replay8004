@@ -44,8 +44,8 @@ a{color:var(--accent)} a:focus-visible{outline:2px solid var(--accent);outline-o
 <header style="display:grid;gap:10px">
   <span class="eyebrow">Web3 lead 3 · prototype v0.1 · 2026-11-20 · Celo Sepolia only</span>
   <h1>replay8004</h1>
-  <p>The first operating validator for ERC-8004's Validation Registry on Celo. An AI agent claims something an outsider can check on Celo (for example, that it paid for an API call). replay8004 re-checks the claim against chain state and answers on-chain with a score from 0 to 100, plus evidence anyone can recompute.</p>
-  <span class="stamp">Celo ValidationRegistry 0x8004Cc84…AB58 · 39 txs ever · last 2026-03-19 · 0 active validators found</span>
+  <p>An open-source re-execution validator for ERC-8004's Validation Registry on Celo, which has recorded no answers since March 2026. An AI agent claims something an outsider can check on Celo (for example, that it paid for an API call). replay8004 re-checks the claim against chain state and answers on-chain with a score from 0 to 100, plus evidence anyone can recompute.</p>
+  <span class="stamp">Celo ValidationRegistry 0x8004Cc84…AB58 · 39 txs ever · last 2026-03-19 · no answers since</span>
 </header>
 
 <section>
@@ -86,7 +86,7 @@ replay8004 worker (every minute) ◀── eth_getLogs(topic1 = validator) ─�
 <section>
   <h2>Why this gap exists</h2>
   <ul>
-    <li><strong>Identity and reputation are in use on Celo, validation isn't.</strong> The registry at <code>0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58</code> has had 39 transactions, all request/response test pairs, the last on 2026-03-19 (CeloScan). Self's own validation registry on Celo has 2 transactions, both role grants.</li>
+    <li><strong>Identity and reputation are in use on Celo, validation isn't.</strong> The registry at <code>0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58</code> has had 39 transactions. Its 21 requests were all for one agent (#1870) on 2026-03-19, and 17 were answered. Nothing since (Blockscout, checked 2026-11-21). Self's own validation registry on Celo has 2 transactions, both role grants.</li>
     <li><strong>Reputation alone is weak.</strong> A 2026 study of 173k ERC-8004 agents on Ethereum, BSC and Base found that 98.7–100% of feedback has no payment proof or task link, and that sybil reviewers make up 59–91% of reviewers. Its authors ask for feedback tied to a verifiable interaction such as a settled x402 payment, which is exactly the <code>erc20_transfer</code> check.</li>
     <li><strong>The registry spec is still moving</strong> (the TEE section is under revision). replay8004 only uses the stable calls: <code>validationRequest</code>, <code>validationResponse</code> and <code>getSummary</code>.</li>
   </ul>

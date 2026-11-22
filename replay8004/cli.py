@@ -82,6 +82,8 @@ def cmd_run(a):
     rpc = Rpc(a.rpc or net.rpc)
     sender = None
     if a.send:
+        if "example.invalid" in a.evidence_base_url:
+            sys.exit("--send needs --evidence-base-url: it is written on-chain for good and must be publicly readable")
         key = os.environ.get("REPLAY8004_VALIDATOR_KEY")
         if not key:
             sys.exit("set REPLAY8004_VALIDATOR_KEY (a key used only for this validator) to send transactions")

@@ -83,8 +83,10 @@ class Sender:
         if rpc.chain_id() != chain_id:
             raise RuntimeError(f"RPC chain id {rpc.chain_id()} != expected {chain_id}")
 
-    def send(self, to: str, data: str) -> str:
-        nonce = int(self.rpc.call("eth_getTransactionCount", [self.address, "pending"]), 16)
+    def sign(self, to: str, data: str, min_nonce: int = 0) -> dict:
+        """Sign without broadcasting, so the caller can persist the exact tx first. `min_nonce` keeps a
+        lagging RPC backend from reusing the nonce of a tx that is still in flight."""
+        nonce = max(int(self.rpc.call("eth_getTransactionCount", [self.address, "pending"]), 16), min_nonce)
         gas = int(self.rpc.call("eth_estimateGas", [{"from": self.address, "to": to, "data": data}]), 16)
         base = int(self.rpc.call("eth_gasPrice", []), 16)
         tip = int(self.rpc.call("eth_maxPriorityFeePerGas", []), 16)
@@ -92,4 +94,11 @@ class Sender:
               "gas": gas * 12 // 10, "maxFeePerGas": base * 2 + tip, "maxPriorityFeePerGas": tip, "type": 2}
         signed = self._acct.sign_transaction(tx)
         raw = getattr(signed, "raw_transaction", None) or signed.rawTransaction
-        return self.rpc.call("eth_sendRawTransaction", ["0x" + raw.hex().removeprefix("0x")])
+        return {"raw": "0x" + raw.hex().removeprefix("0x"), "tx": "0x" + signed.hash.hex().removeprefix("0x"),
+                "nonce": nonce}
+
+    def broadcast(self, raw: str) -> str:
+        return self.rpc.call("eth_sendRawTransaction", [raw])
+
+    def send(self, to: str, data: str) -> str:
+        return self.broadcast(self.sign(to, data)["raw"])

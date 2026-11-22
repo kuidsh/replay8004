@@ -41,6 +41,10 @@ def data_uri(doc: dict) -> str:
     return "data:application/json;base64," + base64.b64encode(raw).decode()
 
 
+def decode_data_uri(uri: str) -> bytes:
+    return base64.b64decode(uri.split(",", 1)[1])
+
+
 def registered_from_receipt(receipt: dict, registry: str, owner: str | None = None) -> list[dict]:
     """All Registered events emitted by `registry` in the receipt (optionally only for `owner`)."""
     out = []

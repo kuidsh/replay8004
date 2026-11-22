@@ -53,6 +53,9 @@ class Rpc:
     def block_number(self) -> int:
         return int(self.call("eth_blockNumber", []), 16)
 
+    def nonce_at(self, address: str, block: int) -> int:
+        return int(self.call("eth_getTransactionCount", [address, hex(block)]), 16)
+
     def receipt(self, tx_hash: str) -> dict | None:
         return self.call("eth_getTransactionReceipt", [tx_hash])
 

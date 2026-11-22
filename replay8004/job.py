@@ -7,6 +7,7 @@ The agent (or its owner) publishes the job bytes somewhere the validator can rea
 from __future__ import annotations
 
 import base64
+import http.client
 import json
 import urllib.parse
 import urllib.request
@@ -22,6 +23,10 @@ IPFS_GATEWAY = "https://ipfs.io/ipfs/"
 
 class JobError(ValueError):
     pass
+
+
+class FetchError(RuntimeError):
+    """The job could not be downloaded right now. Says nothing about the claim, so it is never scored."""
 
 
 def make_job(agent_id: int, chain_id: int, kind: str, claim: dict, note: str = "") -> bytes:
@@ -46,8 +51,13 @@ def fetch(uri: str, opener=None) -> bytes:
     elif uri.startswith(("https://", "ipfs://")):
         url = IPFS_GATEWAY + uri[len("ipfs://"):] if uri.startswith("ipfs://") else uri
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-        with (opener or urllib.request.urlopen)(req, timeout=15) as r:
-            raw = r.read(MAX_JOB_BYTES + 1)
+        try:
+            with (opener or urllib.request.urlopen)(req, timeout=15) as r:
+                raw = r.read(MAX_JOB_BYTES + 1)
+        except http.client.InvalidURL as e:
+            raise JobError(f"malformed requestURI: {e}") from e
+        except (OSError, http.client.HTTPException) as e:  # DNS, timeout, HTTP 4xx/5xx, dropped connection
+            raise FetchError(f"could not fetch requestURI: {e}") from e
     else:
         raise JobError("requestURI must be https://, ipfs:// or data:")
     if len(raw) > MAX_JOB_BYTES:

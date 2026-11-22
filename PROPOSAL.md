@@ -2,7 +2,7 @@
 
 > Form: https://frontier.prezenti.xyz. Window closes **2026-12-29**. Fill the bracketed parts after the launch steps in LAUNCH.md.
 
-**Product:** replay8004, the first operating validator for the ERC-8004 Validation Registry on Celo.
+**Product:** replay8004, an open-source re-execution validator for the ERC-8004 Validation Registry on Celo, where no answer has been recorded since 2026-03-19.
 **Lead applicant:** David Vega (Mexico). Software and data engineer, 13+ years (Python, SQL, AWS
 Serverless, ETL, REST APIs). He has shipped two production Python + blockchain systems with
 on-chain/off-chain verification and auditable logging, including an election-day integrity system.
@@ -21,7 +21,8 @@ on-chain/off-chain verification and auditable logging, including an election-day
 
 ## Problem
 Celo has ERC-8004 identity and reputation in use, but the **Validation Registry is dormant**: 39 txs in
-total, the last on 2026-03-19, with no validator operating. A 2026 study of 173k ERC-8004 agents on
+total, the last on 2026-03-19, when one agent (#1870) sent 21 requests to 21 different
+addresses in a single day and 17 answered. Nothing has been requested or answered since. A 2026 study of 173k ERC-8004 agents on
 Ethereum, BSC and Base found that 98.7–100% of reputation feedback has neither payment proof nor
 task linkage, and that sybil reviewers dominate the rest. Agents paying each other in stablecoins
 on Celo have no neutral, machine-readable way to prove "I delivered / I paid / my number was right."
