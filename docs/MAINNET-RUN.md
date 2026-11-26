@@ -9,6 +9,7 @@ stops before it would be passed. Each transaction is listed only after its recei
 | validator as ERC-8004 agent | **#10141** in the IdentityRegistry `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` |
 | validator's Self Agent ID | **#218** in SelfAgentRegistry `0xaC3DF9ABf80d0F5c020C06B04Cced27763355944` (proof of human, registered by David) |
 | ValidationRegistry | `0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58` |
+| test-agent wallet | [`0x070a5F24851DD4D0200EBd4064F0914F92998647`](https://celoscan.io/address/0x070a5F24851DD4D0200EBd4064F0914F92998647), owns test agent **#10143** |
 
 Funding: 16.879989121819605 CELO from an exchange, in tx
 [`0xd4afad7c…20ba`](https://celoscan.io/tx/0xd4afad7c9922640da54535e1b76c192aae276b2977ab01fa79162f42c75b20ba)
@@ -19,6 +20,7 @@ Funding: 16.879989121819605 CELO from an exchange, in tx
 |---|---|---|---|---|---|---|---|---|
 | 1 | 2026-11-26 | `register(agentURI)`: validator becomes agent #10141 (on-chain `data:` registration file, 917 bytes) | validator | [`0x213749ec…3604`](https://celoscan.io/tx/0x213749ece02ac2aac6a00b656669c892fd23813363cd0bf754e38e4f91963604) | 83,797,743 | 799,700 | 0.16193925 | **0.16193925** / 50 |
 | 2 | 2026-11-26 | fund the test-agent wallet: CELO `transfer` of 3 CELO, validator → `0x070a5F24851DD4D0200EBd4064F0914F92998647` | validator | [`0x6527b43b…7dc6`](https://celoscan.io/tx/0x6527b43b6f7522e38f66eda564b84612dae9d05768ab78c998bd612740127dc6) | 83,800,463 | 39,408 | 0.00798012 | **0.16991937** / 50 |
+| 3 | 2026-11-26 | `register(agentURI)`: mainnet test agent #10143, owned by the test-agent wallet | test agent | [`0x39d3719e…f8b6`](https://celoscan.io/tx/0x39d3719e11abe7b8a93fee16a12c63623f26863663ffe63df49ab1040a8ff8b6) | 83,800,669 | 430,955 | 0.08726839 | **0.25718776** / 50 |
 
 The total counts gas only. The 3 CELO moved in #2 stay within the project and are not spent.
 
@@ -43,3 +45,5 @@ Evidence for mainnet answers is served from
   list yet; both are added with `setAgentURI` in Phase 6 (docs/PHASE6-CHECKLIST.md).
 - **#2:** status 1, with one CELO `Transfer` log: validator → test-agent wallet, exactly 3.0 CELO. Balances afterwards:
   validator 13.710069751819605 CELO, test-agent wallet 3.0 CELO.
+- **#3:** status 1, with one `Registered` event for agent 10143. `ownerOf(10143)` is the test-agent wallet, and
+  `tokenURI(10143)` is the approved `data:` URI (266 bytes of JSON: name "replay8004 mainnet test agent").
