@@ -138,6 +138,7 @@ Resources:
           Properties:
             Name: !Sub "${AWS::StackName}-every-minute"
             ScheduleExpression: rate(1 minute)
+            RetryPolicy: {MaximumRetryAttempts: 0}   # the default retries a failed run 185 times; the next minute retries anyway
             PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]
 
 Outputs:  # every name needed to take the project down (docs/AWS-TEARDOWN.md)
