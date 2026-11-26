@@ -6,7 +6,8 @@ Dry run by default: prints from / to / calldata / gas estimate / cost and sends 
 Mainnet needs --network celo-mainnet AND REPLAY8004_ALLOW_MAINNET=1 (operator decision).
 --registration FILE --validator-address 0x.. embeds a JSON template as a data: URI and shows the decoded JSON
 and its size. --from 0x.. does a dry run without any key.
-The signing key is read from the OWNER_KEY environment variable only and is never printed.
+The signing key is read from an environment variable only (OWNER_KEY, or the one named by --key-env) and is
+never printed.
 """
 from __future__ import annotations
 
@@ -45,6 +46,7 @@ def main() -> None:
     ap.add_argument("--name", default="replay8004 test agent")
     ap.add_argument("--description", default="Test agent used to exercise the replay8004 validator on Celo Sepolia.")
     ap.add_argument("--send", action="store_true", help="really send (default: dry run)")
+    ap.add_argument("--key-env", default="OWNER_KEY", help="environment variable that holds the signing key")
     a = ap.parse_args()
 
     net = networks.get(a.network, allow_mainnet=os.environ.get("REPLAY8004_ALLOW_MAINNET") == "1")
@@ -54,9 +56,9 @@ def main() -> None:
             sys.exit("--from is for dry runs only")
         sender, addr = None, a.from_
     else:
-        key = os.environ.get("OWNER_KEY")
+        key = os.environ.get(a.key_env)
         if not key:
-            sys.exit("set OWNER_KEY (the agent owner's key) in the environment, or use --from for a dry run")
+            sys.exit(f"set {a.key_env} (the signing key) in the environment, or use --from for a dry run")
         sender = Sender(rpc, net.chain_id, key)  # also checks the RPC chain id
         del key
         addr = sender.address
