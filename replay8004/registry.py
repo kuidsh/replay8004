@@ -78,7 +78,10 @@ class Sender:
     def __init__(self, rpc, chain_id: int, private_key: str):
         from eth_account import Account
         self.rpc, self.chain_id = rpc, chain_id
-        self._acct = Account.from_key(private_key)
+        try:
+            self._acct = Account.from_key(private_key)
+        except Exception:  # never let the library echo (part of) the key into a traceback or log
+            raise ValueError("the validator key is not a valid private key (expected 0x + 64 hex characters)") from None
         self.address = self._acct.address
         if rpc.chain_id() != chain_id:
             raise RuntimeError(f"RPC chain id {rpc.chain_id()} != expected {chain_id}")

@@ -1,6 +1,6 @@
 # replay8004: a re-execution validator for ERC-8004 on Celo
 
-**Status: v0.1.1 (2026-11-21). Celo Sepolia by default. 82 tests pass. Checked against live Celo (docs/VERIFICATION.md) and run end to end on Celo Sepolia (docs/TESTNET-RUN.md). Not on mainnet yet.**
+**Status: v0.1.1 (2026-11-27). Celo Sepolia by default. 88 tests pass. Checked against live Celo (docs/VERIFICATION.md) and run end to end on Celo Sepolia (docs/TESTNET-RUN.md). Deployed on AWS for Celo Sepolia in dry-run mode. Not on mainnet yet.**
 
 ERC-8004 gives AI agents three on-chain registries: identity, reputation and **validation**. On
 Celo the first two are in use. The Validation Registry
@@ -43,7 +43,7 @@ never answered twice.
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest -q                                  # 82 tests, fake chain, no network
+pytest -q                                  # 88 tests, fake chain, no network
 replay8004 job erc20-transfer --agent-id 42 --validator 0xVALIDATOR \
   --tx 0xPAYMENT_TX --token 0xTOKEN --to 0xPAYEE --min-amount 10000 --out job.json
 # prints requestHash, an inline data: requestURI and the validationRequest calldata
@@ -63,16 +63,21 @@ Gas on Celo can be paid in stablecoins (fee abstraction). v0.1 pays in CELO: 0.0
 `validationResponse` in the registry's March 2026 transactions, and at most ≈ 0.03 CELO
 (≈ US$0.002) at today's 202 gwei.
 
-## AWS (not deployed)
-`infra/template.yaml` (passes `cfn-lint`) sets up: an EventBridge schedule that runs the worker
-Lambda (arm64, 256 MB) once a minute (overlapping runs cannot both answer: a DynamoDB table holds its state with
-conditional writes; an S3 bucket with Object Lock for evidence, readable by the public only under
-`evidence/`; and a Secrets Manager secret holding only the validator key. It starts in `DryRun=1`
-on Celo Sepolia. Cost is about US$1/month (see COSTS.md).
+## AWS (deployed for Celo Sepolia, dry run)
+`infra/template.yaml` (passes `cfn-lint`) sets up:
+- an EventBridge schedule that runs the worker Lambda (arm64, 256 MB) once a minute, without retries;
+- a DynamoDB table for the worker's state, written conditionally so that two overlapping runs cannot both answer;
+- an S3 bucket with Object Lock for evidence, readable by the public only under `evidence/`;
+- a Secrets Manager secret holding only the validator key, which the Lambda checks against `ValidatorAddress`.
+
+Every resource is tagged `Project=replay8004`, and every IAM role it creates carries the permissions boundary in
+`infra/iam/`. It starts in `DryRun=1` on Celo Sepolia. Measured runs take about 1 s. Cost is about US$0.05/month in
+dry run, or about US$0.45/month per live stack (us-east-1 list prices, checked 2026-11-27). The deploy command is in docs/PHASE5.md. Taking it all
+down is described in docs/AWS-TEARDOWN.md, and the resources are listed in docs/AWS-RESOURCES.md.
 ```bash
 python scripts/build_lambda.py   # stages only the package and its requirements
 sam build -t infra/template.yaml
-sam deploy --guided --parameter-overrides ValidatorAddress=0x... Network=celo-sepolia DryRun=1
+sam deploy ...                   # full command with tags and boundary: docs/PHASE5.md
 ```
 
 ## Security rules
@@ -90,7 +95,7 @@ sam deploy --guided --parameter-overrides ValidatorAddress=0x... Network=celo-se
 | `replay8004/evidence.py` | evidence bundles, `responseHash`, chain verification, local and S3 Object Lock sinks |
 | `replay8004/registry.py` | ValidationRegistry calldata, event decoding, `getSummary`, transaction signer |
 | `replay8004/worker.py` | scan → decide → evidence → respond, with pending retries and no double answers |
-| `replay8004/lambda_handler.py`, `infra/template.yaml` | AWS deployment (not deployed) |
+| `replay8004/lambda_handler.py`, `infra/template.yaml`, `infra/iam/` | AWS deployment (Celo Sepolia, dry run) and its IAM policies |
 | `replay8004/cli.py` | `job`, `check`, `run`, `summary`, `status`, `verify-evidence` |
 | `replay8004/identity.py`, `scripts/register_agent.py` | IdentityRegistry `register(agentURI)` and `Registered` decoding; dry-run-first registration script |
 
