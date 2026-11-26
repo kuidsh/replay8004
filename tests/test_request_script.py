@@ -45,3 +45,21 @@ def test_celo_token_constant_and_transfer_topic():
     assert rv.CELO_TOKEN == "0x471EcE3750Da237f93B8E339c536989b8978a438"
     assert TRANSFER_TOPIC == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
     assert registry.TOPIC_REQUEST.startswith("0x530436c3")
+
+
+@pytest.mark.parametrize("argv", [
+    ["--network", "celo-mainnet", "--key-env", "K", "--send", "pay", "--to", PAYEE, "--amount-wei", "5"],
+    ["--network", "celo-mainnet", "--key-env", "K", "pay", "--to", PAYEE, "--amount-wei", "5", "--send"],
+    ["pay", "--network", "celo-mainnet", "--key-env", "K", "--to", PAYEE, "--amount-wei", "5", "--send"],
+])
+def test_options_work_before_or_after_the_subcommand(argv):
+    # the runbook puts --send at the end; that once failed with "unrecognized arguments"
+    a = rv.parse(argv)
+    assert (a.cmd, a.network, a.key_env, a.send, a.amount_wei) == ("pay", "celo-mainnet", "K", True, 5)
+
+
+def test_defaults_and_required_key_env():
+    a = rv.parse(["--key-env", "K", "pay", "--to", PAYEE, "--amount-wei", "1"])
+    assert (a.network, a.send, a.from_, a.rpc) == ("celo-sepolia", False, None, None)
+    with pytest.raises(SystemExit):
+        rv.parse(["pay", "--to", PAYEE, "--amount-wei", "1"])

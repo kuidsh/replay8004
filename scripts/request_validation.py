@@ -58,19 +58,28 @@ def wait_receipt(rpc: Rpc, tx: str, timeout: int = 180) -> dict:
     raise TimeoutError(f"no receipt for {tx} after {timeout}s")
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--network", default="celo-sepolia", choices=sorted(networks.NETWORKS))
-    ap.add_argument("--rpc")
-    ap.add_argument("--key-env", required=True, help="environment variable that holds the signing key")
-    ap.add_argument("--from", dest="from_", help="dry run only: sender address, no key needed")
-    ap.add_argument("--send", action="store_true", help="really send (default: dry run)")
+COMMON_DEFAULTS = {"network": "celo-sepolia", "rpc": None, "key_env": None, "from_": None, "send": False}
+
+
+def _common() -> argparse.ArgumentParser:
+    """Options accepted both before and after the subcommand (SUPPRESS: whichever side sets one wins)."""
+    c = argparse.ArgumentParser(add_help=False)
+    c.add_argument("--network", choices=sorted(networks.NETWORKS), default=argparse.SUPPRESS)
+    c.add_argument("--rpc", default=argparse.SUPPRESS)
+    c.add_argument("--key-env", default=argparse.SUPPRESS, help="environment variable that holds the signing key")
+    c.add_argument("--from", dest="from_", default=argparse.SUPPRESS, help="dry run only: sender address, no key needed")
+    c.add_argument("--send", action="store_true", default=argparse.SUPPRESS, help="really send (default: dry run)")
+    return c
+
+
+def parse(argv=None) -> argparse.Namespace:
+    ap = argparse.ArgumentParser(parents=[_common()])
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p = sub.add_parser("pay")
+    p = sub.add_parser("pay", parents=[_common()])
     p.add_argument("--to", required=True)
     p.add_argument("--amount-wei", type=int, required=True)
     p.add_argument("--token", default=CELO_TOKEN)
-    q = sub.add_parser("request")
+    q = sub.add_parser("request", parents=[_common()])
     q.add_argument("--agent-id", type=int, required=True)
     q.add_argument("--validator", required=True)
     q.add_argument("--tx", required=True, help="the payment tx being claimed")
@@ -80,7 +89,17 @@ def main() -> None:
     q.add_argument("--payer", help="optional: who paid")
     q.add_argument("--note", default="")
     q.add_argument("--out-dir", default="docs/mainnet", help="where the job file is saved before sending")
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
+    for k, v in COMMON_DEFAULTS.items():
+        if not hasattr(a, k):
+            setattr(a, k, v)
+    if not a.key_env:
+        ap.error("--key-env is required")
+    return a
+
+
+def main() -> None:
+    a = parse()
 
     net = networks.get(a.network, allow_mainnet=os.environ.get("REPLAY8004_ALLOW_MAINNET") == "1")
     rpc = Rpc(a.rpc or net.rpc)
