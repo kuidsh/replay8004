@@ -2,3 +2,4 @@
 *.png binary
 tests/fixtures/job-*.json -text
 docs/testnet/**/*.json -text
+docs/mainnet/**/*.json -text

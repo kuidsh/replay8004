@@ -22,6 +22,8 @@ Funding: 16.879989121819605 CELO from an exchange, in tx
 | 2 | 2026-11-26 | fund the test-agent wallet: CELO `transfer` of 3 CELO, validator → `0x070a5F24851DD4D0200EBd4064F0914F92998647` | validator | [`0x6527b43b…7dc6`](https://celoscan.io/tx/0x6527b43b6f7522e38f66eda564b84612dae9d05768ab78c998bd612740127dc6) | 83,800,463 | 39,408 | 0.00798012 | **0.16991937** / 50 |
 | 3 | 2026-11-26 | `register(agentURI)`: mainnet test agent #10143, owned by the test-agent wallet | test agent | [`0x39d3719e…f8b6`](https://celoscan.io/tx/0x39d3719e11abe7b8a93fee16a12c63623f26863663ffe63df49ab1040a8ff8b6) | 83,800,669 | 430,955 | 0.08726839 | **0.25718776** / 50 |
 | 4 | 2026-11-26 | validation 1, the payment: test agent pays the validator 0.01 CELO (CELO `transfer`) | test agent | [`0x9918c97f…5bb7`](https://celoscan.io/tx/0x9918c97f454753411d2ebe27c1d7263855ec82eae7c76bbdf020ee216b045bb7) | 83,800,861 | 39,396 | 0.00797769 | **0.26516545** / 50 |
+| 5 | 2026-11-26 | validation 1, the request: `validationRequest` by agent #10143 (job [`mainnet/job-4a5795f3.json`](mainnet/job-4a5795f3.json), requestHash `0x4a5795f3…da15`) | test agent | [`0x02090b85…86f1`](https://celoscan.io/tx/0x02090b85eb285eb96aaf4a0f1070d1a501bd9d63f6b458719c3076054c5a86f1) | 83,800,939 | 222,530 | 0.04506233 | **0.31022778** / 50 |
+| 6 | 2026-11-26 | validation 1, **the answer: score 100**, `replay:erc20_transfer`, sent by the AWS Lambda on its own | validator | [`0x7acc6c0d…d27f`](https://celoscan.io/tx/0x7acc6c0d170e36932f4f53a3d8acad437fc7f1549676b8701e82cbc9c5a7d27f) | 83,800,969 | 135,354 | 0.02740919 | **0.33763696** / 50 |
 
 The total counts gas only. The 3 CELO moved in #2 stay within the project and are not spent.
 
@@ -50,3 +52,13 @@ Evidence for mainnet answers is served from
   `tokenURI(10143)` is the approved `data:` URI (266 bytes of JSON: name "replay8004 mainnet test agent").
 - **#4:** status 1, with one CELO `Transfer` log (test agent → validator, 0.01 CELO). The local re-check of the claim
   for validation 1 scored 100 (15 confirmations) before the request was sent.
+- **#5:** status 1, with a `ValidationRequest` event whose requestHash matches the job file. The file saved by the
+  script hashes to that requestHash.
+- **#6 (the first replay8004 answer on mainnet):** the Lambda answered 30 blocks after the request (about a minute)
+  and confirmed it on its next run. `getValidationStatus` gives validator `0xd2d6…5952`, agent 10143, response 100,
+  tag `replay:erc20_transfer`, responseHash `0x6932b3cddd92e4594560be5067dbb5c1b88eca005ce5b486572dc699156af28c`.
+  The evidence at `https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/0x4a5795f3….json`
+  returned HTTP 200 to a logged-out GET (1,735 bytes). Its keccak256 equals the on-chain responseHash and the one in the
+  answer's calldata. The bundle is seq 1 of the mainnet chain ("1 bundles, chain intact"); a copy is in
+  [`mainnet/evidence/`](mainnet/evidence/). Worker state: 1 done, 0 in flight, pending or failed. The validator nonce
+  is 3 (registration, funding, this answer), so it answered once. The Lambda logs show 0 errors.
