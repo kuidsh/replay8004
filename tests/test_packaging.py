@@ -31,9 +31,43 @@ def test_every_role_the_stack_creates_can_take_the_boundary():
 def test_iam_policies_are_valid_and_carry_no_account_id():
     import json
     import re
-    for f in ("boundary-policy.json", "deployer-policy.json"):
+    for f in ("boundary-policy.json", "deployer-policy.json", "deployer-extra-policy.json"):
         text = (ROOT / "infra" / "iam" / f).read_text(encoding="utf-8")
         doc = json.loads(text)
         assert doc["Version"] == "2012-10-17" and doc["Statement"]
         assert not re.search(r"\b\d{12}\b", text)            # ${AWS_ACCOUNT_ID} placeholder only
         assert len(json.dumps(doc, separators=(",", ":")).replace("${AWS_ACCOUNT_ID}", "0" * 12)) <= 6144
+
+
+def _template():
+    from cfnlint.decode import decode
+    tpl, errs = decode(str(ROOT / "infra" / "template.yaml"))
+    assert not errs
+    return tpl
+
+
+def test_every_taggable_resource_is_tagged_and_named_in_outputs():
+    res = _template()["Resources"]
+    for name in ("EvidenceBucket", "StateTable", "WorkerLogs"):
+        tags = {t["Key"]: t["Value"] for t in res[name]["Properties"]["Tags"]}
+        assert tags["Project"] == "replay8004" and "Stack" in tags, name
+    assert res["WorkerFunction"]["Properties"]["Tags"]["Project"] == "replay8004"
+    outs = _template()["Outputs"]
+    for k in ("EvidenceBucketName", "StateTableName", "WorkerFunctionName", "WorkerLogGroupName", "ScheduleName",
+              "WorkerRoleName", "SchedulerRoleName"):
+        assert k in outs, k
+
+
+def test_locked_evidence_bucket_does_not_block_stack_deletion():
+    b = _template()["Resources"]["EvidenceBucket"]
+    assert b["DeletionPolicy"] == "Retain" and b["UpdateReplacePolicy"] == "Retain"
+
+
+def test_retention_parameter_reaches_the_lambda():
+    t = _template()
+    env = t["Resources"]["WorkerFunction"]["Properties"]["Environment"]["Variables"]
+    assert env["EVIDENCE_RETENTION_DAYS"] == {"Ref": "EvidenceRetentionDays"}
+    assert t["Parameters"]["EvidenceRetentionDays"]["MinValue"] == 1
+    src = (ROOT / "replay8004" / "lambda_handler.py").read_text(encoding="utf-8")
+    assert 'retain_days=int(os.environ.get("EVIDENCE_RETENTION_DAYS", "365"))' in src
+    assert "@functools.lru_cache(maxsize=1)\ndef _secret(" in src

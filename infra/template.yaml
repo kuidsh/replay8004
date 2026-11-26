@@ -31,6 +31,8 @@ Parameters:
   EvidenceRetentionDays:
     Type: Number
     Default: 365
+    MinValue: 1
+    Description: Days each evidence file stays locked (S3 Object Lock COMPLIANCE, which nobody can shorten or remove). Use 1 for test stacks.
   PermissionsBoundaryArn:
     Type: String
     Default: ""
@@ -41,9 +43,14 @@ Conditions:
   HasBoundary: !Not [!Equals [!Ref PermissionsBoundaryArn, ""]]
 
 Resources:
+  # Kept when the stack is deleted: its files are locked (and on-chain answers link to them). Delete it by hand
+  # once the last lock expires; see docs/AWS-TEARDOWN.md.
   EvidenceBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
+      Tags: [{Key: Project, Value: replay8004}, {Key: Stack, Value: !Ref AWS::StackName}]
       ObjectLockEnabled: true
       VersioningConfiguration: {Status: Enabled}
       PublicAccessBlockConfiguration:
@@ -73,6 +80,7 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       BillingMode: PAY_PER_REQUEST
+      Tags: [{Key: Project, Value: replay8004}, {Key: Stack, Value: !Ref AWS::StackName}]
       AttributeDefinitions: [{AttributeName: pk, AttributeType: S}]
       KeySchema: [{AttributeName: pk, KeyType: HASH}]
       PointInTimeRecoverySpecification: {PointInTimeRecoveryEnabled: true}
@@ -84,6 +92,7 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-worker"
       RetentionInDays: 30
+      Tags: [{Key: Project, Value: replay8004}, {Key: Stack, Value: !Ref AWS::StackName}]
 
   WorkerFunction:
     Type: AWS::Serverless::Function
@@ -92,6 +101,7 @@ Resources:
       LoggingConfig: {LogGroup: !Ref WorkerLogs}
       PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]
       CodeUri: ../build/lambda
+      Tags: {Project: replay8004, Stack: !Ref AWS::StackName}
       Handler: replay8004.lambda_handler.handler
       Runtime: python3.11
       Architectures: [arm64]
@@ -109,6 +119,7 @@ Resources:
           START_BLOCK: !Ref StartBlock
           EVIDENCE_BUCKET: !Ref EvidenceBucket
           EVIDENCE_BASE_URL: !Sub "https://${EvidenceBucket}.s3.${AWS::Region}.amazonaws.com"
+          EVIDENCE_RETENTION_DAYS: !Ref EvidenceRetentionDays
       Policies:
         - DynamoDBCrudPolicy: {TableName: !Ref StateTable}
         - Statement:
@@ -130,7 +141,19 @@ Resources:
             ScheduleExpression: rate(1 minute)
             PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]
 
-Outputs:
+Outputs:  # every name needed to take the project down (docs/AWS-TEARDOWN.md)
+  EvidenceBucketName:
+    Value: !Ref EvidenceBucket
+  WorkerFunctionName:
+    Value: !Ref WorkerFunction
+  WorkerLogGroupName:
+    Value: !Ref WorkerLogs
+  ScheduleName:
+    Value: !Sub "${AWS::StackName}-every-minute"
+  WorkerRoleName:
+    Value: !Ref WorkerFunctionRole
+  SchedulerRoleName:
+    Value: !Ref WorkerFunctionEveryMinuteRole
   EvidenceBaseUrl:
     Value: !Sub "https://${EvidenceBucket}.s3.${AWS::Region}.amazonaws.com/evidence"
   StateTableName:

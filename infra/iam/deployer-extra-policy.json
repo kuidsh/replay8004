@@ -1,0 +1,93 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyEverythingWithoutMfa",
+      "Effect": "Deny",
+      "NotAction": [
+        "sts:GetSessionToken",
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "BoolIfExists": {
+          "aws:MultiFactorAuthPresent": "false"
+        },
+        "Bool": {
+          "aws:ViaAWSService": "false"
+        }
+      }
+    },
+    {
+      "Sid": "ReadOnlyLookupsCloudFormationMakes",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeVpcs",
+        "logs:DescribeResourcePolicies",
+        "logs:DescribeIndexPolicies",
+        "kms:ListAliases",
+        "tag:GetResources",
+        "access-analyzer:ValidatePolicy"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DynamoDbTableExtras",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetResourcePolicy",
+        "dynamodb:UpdateTimeToLive",
+        "dynamodb:UpdateContributorInsights"
+      ],
+      "Resource": "arn:aws:dynamodb:*:${AWS_ACCOUNT_ID}:table/replay8004-*"
+    },
+    {
+      "Sid": "LogGroupExtras",
+      "Effect": "Allow",
+      "Action": [
+        "logs:GetDataProtectionPolicy",
+        "logs:DeleteDataProtectionPolicy",
+        "logs:DeleteIndexPolicy"
+      ],
+      "Resource": "arn:aws:logs:*:${AWS_ACCOUNT_ID}:log-group:/aws/lambda/replay8004-*"
+    },
+    {
+      "Sid": "S3TaggingUpdatesAndTeardown",
+      "Effect": "Allow",
+      "Action": [
+        "s3:TagResource",
+        "s3:UntagResource",
+        "s3:PutBucketAbac",
+        "s3:PutObjectLockConfiguration",
+        "s3:DeleteBucket*",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::replay8004-*",
+        "arn:aws:s3:::aws-sam-cli-managed-default-samclisourcebucket-*"
+      ]
+    },
+    {
+      "Sid": "LambdaFunctionExtras",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:PutFunctionRecursionConfig",
+        "lambda:PutRuntimeManagementConfig"
+      ],
+      "Resource": "arn:aws:lambda:*:${AWS_ACCOUNT_ID}:function:replay8004-*"
+    },
+    {
+      "Sid": "IamProjectRoleDescriptions",
+      "Effect": "Allow",
+      "Action": [
+        "iam:UpdateRoleDescription",
+        "iam:UpdateRole"
+      ],
+      "Resource": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/replay8004-*"
+    }
+  ]
+}
