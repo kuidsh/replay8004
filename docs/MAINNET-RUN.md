@@ -18,6 +18,9 @@ Funding: 16.879989121819605 CELO from an exchange, in tx
 | # | date (UTC) | step | from | tx | block | gas used | fee (CELO) | total gas (CELO) |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 2026-11-26 | `register(agentURI)`: validator becomes agent #10141 (on-chain `data:` registration file, 917 bytes) | validator | [`0x213749ec…3604`](https://celoscan.io/tx/0x213749ece02ac2aac6a00b656669c892fd23813363cd0bf754e38e4f91963604) | 83,797,743 | 799,700 | 0.16193925 | **0.16193925** / 50 |
+| 2 | 2026-11-26 | fund the test-agent wallet: CELO `transfer` of 3 CELO, validator → `0x070a5F24851DD4D0200EBd4064F0914F92998647` | validator | [`0x6527b43b…7dc6`](https://celoscan.io/tx/0x6527b43b6f7522e38f66eda564b84612dae9d05768ab78c998bd612740127dc6) | 83,800,463 | 39,408 | 0.00798012 | **0.16991937** / 50 |
+
+The total counts gas only. The 3 CELO moved in #2 stay within the project and are not spent.
 
 ## Validator service on AWS
 On 2026-11-26, after David's "go mainnet", stack `replay8004-mainnet` was deployed in us-east-1. It scans from block
@@ -38,3 +41,5 @@ Evidence for mainnet answers is served from
   `getAgentWallet(10141)` are both the validator. `tokenURI(10141)` is byte for byte the `data:` URI David approved
   (664 bytes of JSON, from `examples/registration.json`). The registration has no repo link and no `registrations`
   list yet; both are added with `setAgentURI` in Phase 6 (docs/PHASE6-CHECKLIST.md).
+- **#2:** status 1, with one CELO `Transfer` log: validator → test-agent wallet, exactly 3.0 CELO. Balances afterwards:
+  validator 13.710069751819605 CELO, test-agent wallet 3.0 CELO.
