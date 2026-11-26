@@ -19,6 +19,20 @@ Funding: 16.879989121819605 CELO from an exchange, in tx
 |---|---|---|---|---|---|---|---|---|
 | 1 | 2026-11-26 | `register(agentURI)`: validator becomes agent #10141 (on-chain `data:` registration file, 917 bytes) | validator | [`0x213749ec…3604`](https://celoscan.io/tx/0x213749ece02ac2aac6a00b656669c892fd23813363cd0bf754e38e4f91963604) | 83,797,743 | 799,700 | 0.16193925 | **0.16193925** / 50 |
 
+## Validator service on AWS
+On 2026-11-26, after David's "go mainnet", stack `replay8004-mainnet` was deployed in us-east-1. It scans from block
+83,798,923, keeps evidence locked for 365 days, uses the same tags and permissions boundary as Sepolia, and its
+schedule doesn't retry failed runs.
+1. **Dry run first:** both roles carry `replay8004-boundary`. Two runs scanned mainnet with 0 errors. A logged-out GET
+   of a test file under `evidence/` returned 200 with identical bytes, while the bucket listing and anything outside
+   `evidence/` returned 403. The test file was then deleted.
+2. **Then live** (`DryRun=0`, key from Secrets Manager `replay8004/mainnet-validator`): the first live runs show
+   `dryRun: false` and 0 errors. The Lambda only starts if the key belongs to `ValidatorAddress`, so the key is right.
+   The validator nonce stayed at 1: nothing is sent until a `validationRequest` names this validator.
+
+Evidence for mainnet answers is served from
+`https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/<requestHash>.json`.
+
 ## Checks after each step
 - **#1:** the receipt has status 1 and one `Registered` event for agent 10141. `ownerOf(10141)` and
   `getAgentWallet(10141)` are both the validator. `tokenURI(10141)` is byte for byte the `data:` URI David approved
