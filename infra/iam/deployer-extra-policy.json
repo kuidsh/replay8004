@@ -61,7 +61,6 @@
         "s3:TagResource",
         "s3:UntagResource",
         "s3:PutBucketAbac",
-        "s3:PutObjectLockConfiguration",
         "s3:DeleteBucket*",
         "s3:DeleteObject",
         "s3:DeleteObjectVersion"
