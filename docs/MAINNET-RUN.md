@@ -29,6 +29,12 @@ Funding: 16.879989121819605 CELO from an exchange, in tx
 | 9 | 2026-11-26 | validation 5, the payment: 0.01 CELO, test agent → validator (its request will claim 0.02) | test agent | [`0x6b1a4325…6318`](https://celoscan.io/tx/0x6b1a43253faeaa8d036ced5d9b8505033d95554a5f086ec37470b8bc2a356318) | 83,801,292 | 39,396 | 0.00797769 | **0.36157246** / 50 |
 | 10 | 2026-11-26 | validation 4, the request, **deliberately wrong**: claims that validation 1's payment went to `0x…dEaD` (job [`mainnet/job-449960bb.json`](mainnet/job-449960bb.json)) | test agent | [`0x5c7bce07…9811`](https://celoscan.io/tx/0x5c7bce07dedd3d8c3ee08da070fd9832e3dc3c71f2613317d64ee27c2acf9811) | 83,801,307 | 190,562 | 0.03858881 | **0.40016127** / 50 |
 | 11 | 2026-11-26 | validation 4, **the answer: score 0**, `replay:erc20_transfer` ("no matching Transfer log"), sent by the Lambda | validator | [`0xbb91d72c…8626`](https://celoscan.io/tx/0xbb91d72c5f9a4f5f818c080b186f15622310e50c46de8bff8bfbf096ec2b8626) | 83,801,329 | 115,442 | 0.02337701 | **0.42353827** / 50 |
+| 12 | 2026-11-26 | validation 2, the request (job [`mainnet/job-23e65532.json`](mainnet/job-23e65532.json)) | test agent | [`0xea21f51b…7265`](https://celoscan.io/tx/0xea21f51b6e792d743a1f443c589f6a8f33a483f0812ab1f6f33cb6a35aad7265) | 83,804,835 | 188,330 | 0.03813683 | **0.46167510** / 50 |
+| 13 | 2026-11-26 | validation 3, the request (job [`mainnet/job-aaf6c203.json`](mainnet/job-aaf6c203.json)) | test agent | [`0x0213eb68…30a3`](https://celoscan.io/tx/0x0213eb68e55ae8e41e76eeca86e424c5c79e981720003bc427bdadfa9c9630a3) | 83,804,858 | 188,282 | 0.03812711 | **0.49980220** / 50 |
+| 14 | 2026-11-26 | validation 2, **the answer: score 100** | validator | [`0x8719a84b…9054`](https://celoscan.io/tx/0x8719a84b6af6f8dc4c8b7ebb5ed4153fe5631070f477def5e789a4036f509054) | 83,804,869 | 135,366 | 0.02741162 | **0.52721382** / 50 |
+| 15 | 2026-11-26 | validation 3, **the answer: score 100** | validator | [`0x0f5a5329…33e3`](https://celoscan.io/tx/0x0f5a53294f66460d6a8b707744b8565580a162817cdc7f2e7e04b706f2e633e3) | 83,804,871 | 135,366 | 0.02741162 | **0.55462543** / 50 |
+| 16 | 2026-11-26 | validation 5, the request: claims 0.02 for a 0.01 payment (job [`mainnet/job-e7a4c7b2.json`](mainnet/job-e7a4c7b2.json)) | test agent | [`0x46c3e570…dd66`](https://celoscan.io/tx/0x46c3e5708c7ac74fbd504bd93a7eacd92314d4092c62aa484577b0f5cc72dd66) | 83,804,875 | 189,890 | 0.03845273 | **0.59307816** / 50 |
+| 17 | 2026-11-26 | validation 5, **the answer: score 50** ("transferred 0.01 < claimed 0.02") | validator | [`0xe485b247…be5a`](https://celoscan.io/tx/0xe485b247e76c93a25169b735d7896189d1b7295c3398ee0c8681ca506a74be5a) | 83,804,930 | 135,366 | 0.02741162 | **0.62048977** / 50 |
 
 The total counts gas only. The 3 CELO moved in #2 stay within the project and are not spent.
 
@@ -74,3 +80,21 @@ Evidence for mainnet answers is served from
   (token / from / to)". The evidence (HTTP 200 logged out, 1,855 bytes) hashes to responseHash
   `0xde5cd32c587cbd5e9c6f2f23c1bfb1bcff5ad74304547adb702b551d8683c5f2`. It is seq 2 and its `prev` is validation 1's
   hash: "2 bundles, chain intact". Worker state: 2 done, 0 in flight, pending or failed. The validator nonce is 4.
+- **#12-#17:** every request's event matches its job file. The Lambda answered each request within 1-2 runs, and every
+  answer's evidence returned HTTP 200 logged out and hashed to its on-chain responseHash. After the batch:
+  `verify-evidence docs/mainnet/evidence` reports "5 bundles, chain intact". Worker state: 5 done, 0 in flight, pending
+  or failed. The validator nonce is 7 (registration, funding, 5 answers): each request was answered once. The Lambda
+  logs show 0 errors.
+
+## Summary of the first batch (5 validations by the AWS validator)
+| validation | claim by agent #10143 | answer | requestHash | evidence (seq) |
+|---|---|---|---|---|
+| 1 | paid ≥ 0.01 CELO to the validator in `0x9918c97f…` (it did) | **100** | `0x4a5795f3…` | 1 |
+| 4 | paid ≥ 0.01 CELO to `0x…dEaD` in `0x9918c97f…` (deliberately false) | **0**: no matching Transfer log | `0x449960bb…` | 2 |
+| 2 | paid ≥ 0.02 CELO in `0x6165257d…` (it did) | **100** | `0x23e65532…` | 3 |
+| 3 | paid ≥ 0.005 CELO in `0x59728986…` (it did) | **100** | `0xaaf6c203…` | 4 |
+| 5 | paid ≥ 0.02 CELO in `0x6b1a4325…` (it paid 0.01) | **50**: score scales with the amount paid | `0xe7a4c7b2…` | 5 |
+
+Gas per answer was 0.0234-0.0274 CELO (115k-135k gas at 202.5 gwei). Everything so far (2 registrations, 1 funding
+transfer, 4 payments, 5 requests, 5 answers) cost **0.62048977 CELO** in gas, out of the 50 CELO cap.
+The evidence copies are in [`mainnet/evidence/`](mainnet/evidence/) and the job files in [`mainnet/`](mainnet/).
