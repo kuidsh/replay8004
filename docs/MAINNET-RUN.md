@@ -24,6 +24,11 @@ Funding: 16.879989121819605 CELO from an exchange, in tx
 | 4 | 2026-11-26 | validation 1, the payment: test agent pays the validator 0.01 CELO (CELO `transfer`) | test agent | [`0x9918c97f…5bb7`](https://celoscan.io/tx/0x9918c97f454753411d2ebe27c1d7263855ec82eae7c76bbdf020ee216b045bb7) | 83,800,861 | 39,396 | 0.00797769 | **0.26516545** / 50 |
 | 5 | 2026-11-26 | validation 1, the request: `validationRequest` by agent #10143 (job [`mainnet/job-4a5795f3.json`](mainnet/job-4a5795f3.json), requestHash `0x4a5795f3…da15`) | test agent | [`0x02090b85…86f1`](https://celoscan.io/tx/0x02090b85eb285eb96aaf4a0f1070d1a501bd9d63f6b458719c3076054c5a86f1) | 83,800,939 | 222,530 | 0.04506233 | **0.31022778** / 50 |
 | 6 | 2026-11-26 | validation 1, **the answer: score 100**, `replay:erc20_transfer`, sent by the AWS Lambda on its own | validator | [`0x7acc6c0d…d27f`](https://celoscan.io/tx/0x7acc6c0d170e36932f4f53a3d8acad437fc7f1549676b8701e82cbc9c5a7d27f) | 83,800,969 | 135,354 | 0.02740919 | **0.33763696** / 50 |
+| 7 | 2026-11-26 | validation 2, the payment: 0.02 CELO, test agent → validator | test agent | [`0x6165257d…dd37`](https://celoscan.io/tx/0x6165257d46f98af3b2ead33c1a0849a8cdf4f81330e510d3de132be12202dd37) | 83,801,267 | 39,396 | 0.00797769 | **0.34561465** / 50 |
+| 8 | 2026-11-26 | validation 3, the payment: 0.005 CELO, test agent → validator | test agent | [`0x59728986…facc`](https://celoscan.io/tx/0x597289861ea2e781489c128bc0d180ca31db999cd83cae35ed6d89be6e9afacc) | 83,801,278 | 39,408 | 0.00798012 | **0.35359477** / 50 |
+| 9 | 2026-11-26 | validation 5, the payment: 0.01 CELO, test agent → validator (its request will claim 0.02) | test agent | [`0x6b1a4325…6318`](https://celoscan.io/tx/0x6b1a43253faeaa8d036ced5d9b8505033d95554a5f086ec37470b8bc2a356318) | 83,801,292 | 39,396 | 0.00797769 | **0.36157246** / 50 |
+| 10 | 2026-11-26 | validation 4, the request, **deliberately wrong**: claims that validation 1's payment went to `0x…dEaD` (job [`mainnet/job-449960bb.json`](mainnet/job-449960bb.json)) | test agent | [`0x5c7bce07…9811`](https://celoscan.io/tx/0x5c7bce07dedd3d8c3ee08da070fd9832e3dc3c71f2613317d64ee27c2acf9811) | 83,801,307 | 190,562 | 0.03858881 | **0.40016127** / 50 |
+| 11 | 2026-11-26 | validation 4, **the answer: score 0**, `replay:erc20_transfer` ("no matching Transfer log"), sent by the Lambda | validator | [`0xbb91d72c…8626`](https://celoscan.io/tx/0xbb91d72c5f9a4f5f818c080b186f15622310e50c46de8bff8bfbf096ec2b8626) | 83,801,329 | 115,442 | 0.02337701 | **0.42353827** / 50 |
 
 The total counts gas only. The 3 CELO moved in #2 stay within the project and are not spent.
 
@@ -62,3 +67,10 @@ Evidence for mainnet answers is served from
   answer's calldata. The bundle is seq 1 of the mainnet chain ("1 bundles, chain intact"); a copy is in
   [`mainnet/evidence/`](mainnet/evidence/). Worker state: 1 done, 0 in flight, pending or failed. The validator nonce
   is 3 (registration, funding, this answer), so it answered once. The Lambda logs show 0 errors.
+- **#7-#9:** status 1, each with one CELO `Transfer` log (0.02, 0.005 and 0.01 CELO to the validator).
+- **#10-#11 (validation 4, the deliberate failure):** the request's event matches the job file
+  (requestHash `0x449960bb…e55a`). The local re-check scored 0 before sending. The Lambda answered 22 blocks later:
+  `getValidationStatus` gives response 0, tag `replay:erc20_transfer`, and the finding is "no matching Transfer log
+  (token / from / to)". The evidence (HTTP 200 logged out, 1,855 bytes) hashes to responseHash
+  `0xde5cd32c587cbd5e9c6f2f23c1bfb1bcff5ad74304547adb702b551d8683c5f2`. It is seq 2 and its `prev` is validation 1's
+  hash: "2 bundles, chain intact". Worker state: 2 done, 0 in flight, pending or failed. The validator nonce is 4.
