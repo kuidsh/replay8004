@@ -26,6 +26,14 @@ Disclosures such as age or nationality are optional and are stored on-chain, so 
 `python scripts/register_agent.py --registration examples/registration.json --validator-address 0x.. --from 0x..`
 shows the decoded JSON, size, calldata and gas without a key. The wallet needs CELO before the tx can be sent.
 
+## AWS access
+Profile `kuidsh-own-mfa` only. Deploys run as the IAM user `replay8004-deployer`, never as root. Its policy
+(`infra/iam/deployer-policy.json`) covers only `replay8004-*` stacks, buckets, tables, functions, schedules, log groups and
+`replay8004/*` secrets. It is limited to us-east-1 and mx-central-1 and requires an MFA session. It can store the validator
+key but never read it back. Every role the stack creates gets the boundary `infra/iam/boundary-policy.json`, so pass it on deploy:
+`--parameter-overrides PermissionsBoundaryArn=arn:aws:iam::<account>:policy/replay8004-boundary`.
+Name the validator-key secret `replay8004/<network>-validator`.
+
 ## 3. Evidence host, before the first mainnet answer
 Upload a test object, then open it logged out (`curl -i <url>`). It must return 200 with the same bytes.
 Then repeat a full Sepolia validation against that host, because the sending code changed after docs/TESTNET-RUN.md.

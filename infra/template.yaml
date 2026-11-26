@@ -31,9 +31,14 @@ Parameters:
   EvidenceRetentionDays:
     Type: Number
     Default: 365
+  PermissionsBoundaryArn:
+    Type: String
+    Default: ""
+    Description: Managed policy set as the permissions boundary of every IAM role this stack creates (infra/iam/).
 
 Conditions:
   HasKey: !Not [!Equals [!Ref ValidatorKeySecretArn, ""]]
+  HasBoundary: !Not [!Equals [!Ref PermissionsBoundaryArn, ""]]
 
 Resources:
   EvidenceBucket:
@@ -72,9 +77,20 @@ Resources:
       KeySchema: [{AttributeName: pk, KeyType: HASH}]
       PointInTimeRecoverySpecification: {PointInTimeRecoveryEnabled: true}
 
+  # Created before the function, with a fixed name: otherwise the first scheduled run can create
+  # /aws/lambda/<function> itself and this resource then fails with "already exists".
+  WorkerLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-worker"
+      RetentionInDays: 30
+
   WorkerFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub "${AWS::StackName}-worker"
+      LoggingConfig: {LogGroup: !Ref WorkerLogs}
+      PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]
       CodeUri: ../build/lambda
       Handler: replay8004.lambda_handler.handler
       Runtime: python3.11
@@ -110,13 +126,9 @@ Resources:
         EveryMinute:
           Type: ScheduleV2
           Properties:
+            Name: !Sub "${AWS::StackName}-every-minute"
             ScheduleExpression: rate(1 minute)
-
-  WorkerLogs:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${WorkerFunction}"
-      RetentionInDays: 30
+            PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]
 
 Outputs:
   EvidenceBaseUrl:
