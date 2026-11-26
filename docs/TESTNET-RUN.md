@@ -71,3 +71,25 @@ after this run: `check` now reports such a job as undecidable. The on-chain answ
 - Agent: `python scripts/register_agent.py --send` (register(string), with agentId read from the `Registered` event).
 - Job 1: `replay8004 job erc20-transfer --agent-id 1037 --tx 0xa6552a0b… --token 0x471EcE…a438 --from <owner> --to <validator> --min-amount 10000000000000000`.
 - Validator: `replay8004 run --validator 0x1632…0A86 --send --once --evidence-base-url https://raw.githubusercontent.com/kuidsh/replay8004/main/docs/testnet/evidence`.
+
+## Run 3: answered by the AWS Lambda (2026-11-26)
+Stack `replay8004-sepolia` in us-east-1 with `DryRun=0`. The validator key comes from Secrets Manager, and evidence goes
+to the stack's S3 bucket (Object Lock, 1-day retention on Sepolia). Nobody ran the worker by hand: the scheduled
+Lambda found the request and answered it within a minute, then confirmed the answer one run later.
+
+| # | step | from | tx | block | fee (CELO) |
+|---|---|---|---|---|---|
+| 7 | the payment: 0.01 CELO ERC-20 `transfer`, owner → validator | owner | [`0x0f15ff9d…91f0`](https://celo-sepolia.blockscout.com/tx/0x0f15ff9d3d6a1aa3d92332f14027be8f9c10f731536f047702f1d34e101d91f0) | 42,398,469 | 0.00206147 |
+| 8 | `validationRequest`: job 3 | owner | [`0xaca8eabe…016d`](https://celo-sepolia.blockscout.com/tx/0xaca8eabeed330059b5d3b869ba1607791d49ed9c4ffd966f339c7bf6427e016d) | 42,398,487 | 0.01001018 |
+| 9 | `validationResponse`: **score 100**, `replay:erc20_transfer`, sent by the Lambda | validator | [`0x31d6fd23…9c40`](https://celo-sepolia.blockscout.com/tx/0x31d6fd23355779b49d2e6cefe3cbad97abb87153c9e3c95697987a53e40b9c40) | 42,398,546 | 0.00710672 |
+
+- Job: [`testnet/job-3-aws.json`](testnet/job-3-aws.json), requestHash `0xec1740deedbf5d9a017f71de1d7816ba5c42ef4484cc52108b4bbfb7edf4dfc2`.
+- `getValidationStatus`: validator `0x1632…0a86`, agent 1037, 100, `replay:erc20_transfer`, responseHash `0x2586a79a489fbad717c4766f1e0e74e9fe72124e65688b54f05f57df7fd22744`.
+- `responseURI`: `https://replay8004-sepolia-evidencebucket-atl2yx1bldpz.s3.us-east-1.amazonaws.com/evidence/0xec1740de….json`.
+  A logged-out GET returned HTTP 200 (1,903 bytes), and its keccak256 equals the on-chain responseHash. A copy is in
+  [`testnet/evidence-aws/`](testnet/evidence-aws/), because the S3 copy goes away when the Sepolia stack is removed.
+  `verify-evidence` reports "1 bundles, chain intact". The Lambda keeps its own chain in DynamoDB, so it starts at #1,
+  separate from the two local answers above.
+- The worker's DynamoDB state shows the request as done, with nothing in flight, pending or failed. The validator's
+  nonce went from 2 to 3: one answer only. The Lambda logs show no errors.
+- The Lambda checks that the key in Secrets Manager belongs to `ValidatorAddress` before it sends anything.

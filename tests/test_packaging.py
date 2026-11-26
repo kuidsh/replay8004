@@ -75,7 +75,7 @@ def test_retention_parameter_reaches_the_lambda():
 
 def test_no_reserved_concurrency():
     # new accounts have a concurrency quota of 10 and AWS keeps 10 unreserved, so any reservation fails to deploy
-    # (CREATE_FAILED on 2026-11-27). Exactly-once comes from the conditional state write + on-chain check instead.
+    # (CREATE_FAILED on 2026-11-26). Exactly-once comes from the conditional state write + on-chain check instead.
     assert "ReservedConcurrentExecutions" not in _template()["Resources"]["WorkerFunction"]["Properties"]
 
 
