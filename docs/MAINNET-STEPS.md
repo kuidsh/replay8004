@@ -89,9 +89,42 @@ Before the first answer, Claude checks:
 Mainnet evidence stays locked for 365 days. The bucket is kept when the stack is deleted, because the on-chain
 answers link to it.
 
-## 6. Run 5-10 real validations (Claude, David approves each batch)
-These start with the test agent's own mainnet payments. Every tx and its running gas total go into
-`docs/MAINNET-RUN.md`. Claude stops before the total passes 50 CELO.
+## 6. Run 5-10 real validations
+Test-agent wallet: `0x070a5F24851DD4D0200EBd4064F0914F92998647` (`.env`: `MAINET_AGENT_PRIVATE_KEY`).
+Every command below is a dry run without `--send`: Claude runs that first and shows you the result. You run the
+`--send` version only after approving it. Claude verifies every answer and logs every tx, with the running gas total,
+in `docs/MAINNET-RUN.md`. Claude stops before the total passes 50 CELO.
+
+Load the keys into the current PowerShell window (and nothing else), then clear them at the end:
+```powershell
+$env:REPLAY8004_ALLOW_MAINNET = "1"
+$env:MAINET_WALLET_PRIVATE_KEY = (Select-String -Path .env -Pattern '^MAINET_WALLET_PRIVATE_KEY=(.+)$').Matches[0].Groups[1].Value.Trim()
+$env:MAINET_AGENT_PRIVATE_KEY  = (Select-String -Path .env -Pattern '^MAINET_AGENT_PRIVATE_KEY=(.+)$').Matches[0].Groups[1].Value.Trim()
+# ... commands ...
+Remove-Item Env:MAINET_WALLET_PRIVATE_KEY, Env:MAINET_AGENT_PRIVATE_KEY, Env:REPLAY8004_ALLOW_MAINNET
+```
+
+**6a. Fund the test-agent wallet with 3 CELO from the validator** (one ERC-20 transfer of CELO, gas ≈ 0.008):
+```powershell
+.venv\Scripts\python scripts\request_validation.py --network celo-mainnet --key-env MAINET_WALLET_PRIVATE_KEY pay --to 0x070a5F24851DD4D0200EBd4064F0914F92998647 --amount-wei 3000000000000000000 --send
+```
+
+**6b. Register the test agent** (owner = the test-agent wallet; gas ≈ 0.09). Send Claude the agentId it prints:
+```powershell
+.venv\Scripts\python scripts\register_agent.py --network celo-mainnet --key-env MAINET_AGENT_PRIVATE_KEY --name "replay8004 mainnet test agent" --description "Test agent run by the replay8004 operator to exercise the validator on Celo mainnet." --send
+```
+
+**6c. For each validation: a payment, then a request for it.** The agent pays the validator 0.01 CELO (gas ≈ 0.008).
+Then it asks replay8004 to validate that payment (gas ≈ 0.045). The validator's answer costs it ≈ 0.027.
+```powershell
+.venv\Scripts\python scripts\request_validation.py --network celo-mainnet --key-env MAINET_AGENT_PRIVATE_KEY pay --to 0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952 --amount-wei 10000000000000000 --send
+.venv\Scripts\python scripts\request_validation.py --network celo-mainnet --key-env MAINET_AGENT_PRIVATE_KEY request --agent-id <test agent id> --validator 0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952 --tx <payment tx from the line above> --to 0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952 --min-amount 10000000000000000 --payer 0x070a5F24851DD4D0200EBd4064F0914F92998647 --send
+```
+`request` re-checks the claim locally before sending and shows the expected score. It saves the exact job file under
+`docs/mainnet/`. The AWS validator answers within about a minute.
+At least one validation should be deliberately wrong, for example a `--to` that wasn't paid, expecting score 0.
+
+Budget for 10 validations: ≈ 0.6 CELO from the test-agent wallet and ≈ 0.27 CELO from the validator.
 
 ## 7. Afterwards
 - The Sepolia stack costs about US$0.45/month while it runs live. Remove it (step 1 of [AWS-TEARDOWN.md](AWS-TEARDOWN.md)),
