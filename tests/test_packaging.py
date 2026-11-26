@@ -71,3 +71,9 @@ def test_retention_parameter_reaches_the_lambda():
     src = (ROOT / "replay8004" / "lambda_handler.py").read_text(encoding="utf-8")
     assert 'retain_days=int(os.environ.get("EVIDENCE_RETENTION_DAYS", "365"))' in src
     assert "@functools.lru_cache(maxsize=1)\ndef _secret(" in src
+
+
+def test_no_reserved_concurrency():
+    # new accounts have a concurrency quota of 10 and AWS keeps 10 unreserved, so any reservation fails to deploy
+    # (CREATE_FAILED on 2026-11-27). Exactly-once comes from the conditional state write + on-chain check instead.
+    assert "ReservedConcurrentExecutions" not in _template()["Resources"]["WorkerFunction"]["Properties"]

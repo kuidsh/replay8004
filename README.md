@@ -1,6 +1,6 @@
 # replay8004: a re-execution validator for ERC-8004 on Celo
 
-**Status: v0.1.1 (2026-11-21). Celo Sepolia by default. 81 tests pass. Checked against live Celo (docs/VERIFICATION.md) and run end to end on Celo Sepolia (docs/TESTNET-RUN.md). Not on mainnet yet.**
+**Status: v0.1.1 (2026-11-21). Celo Sepolia by default. 82 tests pass. Checked against live Celo (docs/VERIFICATION.md) and run end to end on Celo Sepolia (docs/TESTNET-RUN.md). Not on mainnet yet.**
 
 ERC-8004 gives AI agents three on-chain registries: identity, reputation and **validation**. On
 Celo the first two are in use. The Validation Registry
@@ -43,7 +43,7 @@ never answered twice.
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest -q                                  # 81 tests, fake chain, no network
+pytest -q                                  # 82 tests, fake chain, no network
 replay8004 job erc20-transfer --agent-id 42 --validator 0xVALIDATOR \
   --tx 0xPAYMENT_TX --token 0xTOKEN --to 0xPAYEE --min-amount 10000 --out job.json
 # prints requestHash, an inline data: requestURI and the validationRequest calldata
@@ -65,7 +65,7 @@ Gas on Celo can be paid in stablecoins (fee abstraction). v0.1 pays in CELO: 0.0
 
 ## AWS (not deployed)
 `infra/template.yaml` (passes `cfn-lint`) sets up: an EventBridge schedule that runs the worker
-Lambda (arm64, 256 MB) once a minute with concurrency 1; a DynamoDB table for its state, using
+Lambda (arm64, 256 MB) once a minute (overlapping runs cannot both answer: a DynamoDB table holds its state with
 conditional writes; an S3 bucket with Object Lock for evidence, readable by the public only under
 `evidence/`; and a Secrets Manager secret holding only the validator key. It starts in `DryRun=1`
 on Celo Sepolia. Cost is about US$1/month (see COSTS.md).

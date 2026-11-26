@@ -107,7 +107,6 @@ Resources:
       Architectures: [arm64]
       MemorySize: 256
       Timeout: 50
-      ReservedConcurrentExecutions: 1   # one poller at a time; DynamoDB conditional writes back this up
       Environment:
         Variables:
           NETWORK: !Ref Network
