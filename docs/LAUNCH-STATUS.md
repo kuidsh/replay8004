@@ -9,7 +9,7 @@ Every "done" below was verified by an on-chain read, the GitHub API, the npm/PyP
 | b | Self Agent ID | **done** (**#218**) | below |
 | c | Public GitHub repo, green CI, matching what's deployed | **done** 2026-11-27: public, CI green, `main` = deployed v0.5, site on GitHub Pages | below |
 | d | `@replay8004/client` on npm, `replay8004` on PyPI | **prepared**, not published; both names unclaimed | below |
-| e | Status page published | **built** (`./site`), not published; path proposed | below |
+| e | Status page published | **done** 2026-11-27 | below |
 | f | celo-org/agent-skills PR | **ready** on a local branch, typechecked, verify code tested on mainnet; not opened | below |
 | g | GitHub issue to erc-8004/erc-8004-contracts | **drafted** | docs/OUTREACH.md §4 |
 | h | Celo forum + Discord posts | **drafted** | docs/OUTREACH.md §2–3 |
@@ -57,7 +57,9 @@ your agent #218 should list the validator address. If Self ever asks you to re-v
   ```
   Publish from the commit you deploy, after the repo is public (the READMEs link to it).
 
-## e. Status page: built, not published
+## e. Status page: published 2026-11-27
+Live at https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/status/index.html (HTTP 200 logged out, `text/html`; its evidence links open; no Object Lock on it, so it can be replaced).
+
 `./site/index.html` + `status.json`, rebuilt from the 5 public bundles (chain intact, 5 answered, pass rate 60%).
 **Proposed path:** `s3://replay8004-mainnet-evidencebucket-exgfx3xqkhfr/evidence/status/`, served at
 `https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/status/index.html`.

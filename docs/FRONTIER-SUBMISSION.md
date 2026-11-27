@@ -17,7 +17,7 @@ Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can f
 |---|---|
 | Product name * | `replay8004` |
 | Team name * | **[NEEDS DAVID]** (e.g. `replay8004`, or your name) |
-| Website * | `https://github.com/kuidsh/replay8004` (or the status page URL, if you publish it: docs/LAUNCH-STATUS.md item e) |
+| Website * | `https://kuidsh.github.io/replay8004/` |
 | X Handle * | **[NEEDS DAVID]** |
 | KarmaGAP profile * | **[NEEDS DAVID]** profile link |
 | Github * | `https://github.com/kuidsh/replay8004` (**public first**) |
@@ -28,7 +28,7 @@ Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can f
 | Describe your project * | text A |
 | Infrastructure focus * (one line) | `A public validator for ERC-8004 on Celo: any agent names it in validationRequest and gets an on-chain 0-100 score plus recomputable evidence; contracts and marketplaces gate on it.` |
 | Verifiable onchain activity * | text B |
-| Demo (optional) | `https://github.com/kuidsh/replay8004/blob/main/docs/MAINNET-STATUS.md` |
+| Demo (optional) | `https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/status/index.html` (live status page; full table in docs/MAINNET-STATUS.md) |
 | Activation path, first 10-100 * | text C |
 | Distribution strategy * | text D |
 | Worked with in the Celo ecosystem * | **[NEEDS DAVID]**: tick only formal engagements, otherwise **None of the above** |
