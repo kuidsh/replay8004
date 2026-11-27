@@ -94,7 +94,8 @@ def cmd_run(a):
     base = Path(a.state_dir)
     w = Worker(network=net, rpc=rpc, validator=a.validator, sender=sender,
                store=FileStore(base / f"state-{net.name}.json", start_block=a.start_block or net.validation_deploy_block),
-               sink=LocalSink(base / "evidence", a.evidence_base_url))
+               sink=LocalSink(base / "evidence", a.evidence_base_url),
+               max_answers_per_day=a.max_answers_per_day, max_answers_per_agent_per_day=a.max_answers_per_agent_per_day)
     while True:
         print(json.dumps(w.poll_once(), indent=2, default=str))
         if a.once:
@@ -158,6 +159,8 @@ def main(argv=None):
                    help="first block to scan on a fresh state file (default: the registry's deployment block)")
     r.add_argument("--state-dir", default=".replay8004")
     r.add_argument("--evidence-base-url", default="https://example.invalid/evidence")
+    r.add_argument("--max-answers-per-day", type=int, default=20, help="gas guard: answers per UTC day (0 pauses)")
+    r.add_argument("--max-answers-per-agent-per-day", type=int, default=5, help="gas guard: answers per agent per UTC day")
     r.set_defaults(fn=cmd_run)
 
     s = sub.add_parser("summary")

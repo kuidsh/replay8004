@@ -22,6 +22,7 @@
 """
 from __future__ import annotations
 
+import copy
 import datetime as dt
 import logging
 
@@ -37,12 +38,16 @@ def _now() -> str:
 
 class Worker:
     def __init__(self, *, network, rpc, store, sink, validator: str, sender=None, fetch=jobmod.fetch,
-                 reorg_buffer: int = 3, chunk: int = 5_000, max_pending_polls: int = 120, max_attempts: int = 3, clock=_now):
+                 reorg_buffer: int = 3, chunk: int = 5_000, max_pending_polls: int = 120, max_attempts: int = 3,
+                 max_answers_per_day: int = 20, max_answers_per_agent_per_day: int = 5, clock=_now):
         self.net, self.rpc, self.store, self.sink = network, rpc, store, sink
         self.validator = validator.lower()
         self.sender, self.fetch, self.clock = sender, fetch, clock
         self.reorg_buffer, self.chunk, self.max_pending_polls = reorg_buffer, chunk, max_pending_polls
         self.max_attempts = max_attempts
+        # gas guard: anyone can name this validator, and every answer costs gas. Over the cap, requests wait for a
+        # later UTC day (oldest first) instead of being answered; 0 pauses answering entirely.
+        self.max_per_day, self.max_per_agent = max_answers_per_day, max_answers_per_agent_per_day
 
     # -- scanning -------------------------------------------------------------
     def _scan(self, st: dict) -> list[dict]:
@@ -139,6 +144,8 @@ class Worker:
                 log.error("%s: gave up after %s attempts", h, f["attempts"])
                 st["failed"][h] = st["inflight"].pop(h)
                 self.store.save(st)
+            elif self._capped(self._today(st), None):
+                log.warning("%s: daily answer cap reached; re-sending tomorrow", h)
             else:
                 try:
                     signed = self.sender.sign(self.net.validation, f["calldata"], self._min_nonce(st))
@@ -146,9 +153,25 @@ class Worker:
                     log.warning("cannot re-sign %s: %s", h, e)
                     continue
                 f.update(signed, attempts=f["attempts"] + 1)
+                self._count(self._today(st), None)
                 self.store.save(st)
                 self._broadcast(h, f["raw"])
         return confirmed
+
+    def _today(self, st: dict) -> dict:
+        day = self.clock()[:10]
+        if st.get("daily", {}).get("date") != day:
+            st["daily"] = {"date": day, "total": 0, "agents": {}}
+        return st["daily"]
+
+    def _capped(self, daily: dict, agent) -> bool:
+        return daily["total"] >= self.max_per_day or daily["agents"].get(str(agent), 0) >= self.max_per_agent
+
+    @staticmethod
+    def _count(daily: dict, agent) -> None:
+        daily["total"] += 1
+        if agent is not None:
+            daily["agents"][str(agent)] = daily["agents"].get(str(agent), 0) + 1
 
     def poll_once(self) -> dict:
         st = self.store.load()
@@ -160,10 +183,15 @@ class Worker:
             if not any(q["requestHash"] in st[k] for k in ("done", "pending", "inflight", "failed")):
                 st["pending"][q["requestHash"]] = dict(q, polls=0)
         chain = {"seq": st["seq"], "head": st["head"]}  # a dry run advances only this local copy
-        answered, still = [], 0
+        daily = copy.deepcopy(self._today(st)) if self.dry_run else self._today(st)
+        answered, still, capped = [], 0, 0
         # deterministic order (request block, then hash): the evidence chain then doesn't depend on how the
         # state file happened to order its keys, and a dry run previews exactly what the live run sends
         for h, req in sorted(st["pending"].items(), key=lambda kv: (kv[1].get("blockNumber", 0), kv[0])):
+            if self._capped(daily, req["agentId"]):  # checked first: no RPC is spent on requests that must wait
+                still += 1
+                capped += 1
+                continue
             try:
                 prior = self._on_chain(h)  # e.g. the local state was lost after answering
                 if not prior:
@@ -193,15 +221,17 @@ class Worker:
                 still += 1
                 continue
             answered.append(res)
+            self._count(daily, req["agentId"])
             if self.dry_run:
                 still += 1  # stays pending for the live run
                 continue
             st["seq"], st["head"] = chain["seq"], chain["head"]
             st["inflight"][h] = dict(signed, calldata=res["calldata"], responseHash=res["responseHash"],
-                                     score=res["score"], attempts=1)
+                                     score=res["score"], attempts=1, agentId=req["agentId"])
             del st["pending"][h]
             self.store.save(st)  # persisted BEFORE broadcasting: a crash or lost reply never double-answers
             self._broadcast(h, signed["raw"])
         self.store.save(st)  # dry run: only scan progress and newly seen (still pending) requests change
         return {"scanned_to": st["last_block"], "new": len(new), "answered": answered, "confirmed": confirmed,
-                "pending": still, "inflight": len(st["inflight"]), "failed": len(st["failed"]), "dryRun": self.dry_run}
+                "pending": still, "capped": capped, "inflight": len(st["inflight"]), "failed": len(st["failed"]),
+                "answeredToday": daily["total"], "dryRun": self.dry_run}

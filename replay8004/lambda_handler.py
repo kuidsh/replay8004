@@ -42,7 +42,9 @@ def handler(event, context):  # pragma: no cover - needs AWS
     w = Worker(network=net, rpc=rpc, validator=validator, sender=sender,
                store=DynamoStore(os.environ["STATE_TABLE"], start_block=int(os.environ.get("START_BLOCK", "0")) or net.validation_deploy_block),
                sink=S3Sink(os.environ["EVIDENCE_BUCKET"], os.environ["EVIDENCE_BASE_URL"],
-                           retain_days=int(os.environ.get("EVIDENCE_RETENTION_DAYS", "365"))))
+                           retain_days=int(os.environ.get("EVIDENCE_RETENTION_DAYS", "365"))),
+               max_answers_per_day=int(os.environ.get("MAX_ANSWERS_PER_DAY", "20")),
+               max_answers_per_agent_per_day=int(os.environ.get("MAX_ANSWERS_PER_AGENT_PER_DAY", "5")))
     out = w.poll_once()
     print(json.dumps({k: v for k, v in out.items() if k != "answered"} | {"answered": len(out["answered"])}))
     return out

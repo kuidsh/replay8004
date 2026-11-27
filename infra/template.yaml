@@ -33,6 +33,16 @@ Parameters:
     Default: 365
     MinValue: 1
     Description: Days each evidence file stays locked (S3 Object Lock COMPLIANCE, which nobody can shorten or remove). Use 1 for test stacks.
+  MaxAnswersPerDay:
+    Type: Number
+    Default: 20
+    MinValue: 0
+    Description: Gas guard. At most this many answers per UTC day (about 0.027 CELO each); later requests wait. 0 pauses answering.
+  MaxAnswersPerAgentPerDay:
+    Type: Number
+    Default: 5
+    MinValue: 0
+    Description: Gas guard. At most this many answers per agent per UTC day, so one agent cannot use up the daily cap.
   PermissionsBoundaryArn:
     Type: String
     Default: ""
@@ -119,6 +129,8 @@ Resources:
           EVIDENCE_BUCKET: !Ref EvidenceBucket
           EVIDENCE_BASE_URL: !Sub "https://${EvidenceBucket}.s3.${AWS::Region}.amazonaws.com"
           EVIDENCE_RETENTION_DAYS: !Ref EvidenceRetentionDays
+          MAX_ANSWERS_PER_DAY: !Ref MaxAnswersPerDay
+          MAX_ANSWERS_PER_AGENT_PER_DAY: !Ref MaxAnswersPerAgentPerDay
       Policies:
         - DynamoDBCrudPolicy: {TableName: !Ref StateTable}
         - Statement:
