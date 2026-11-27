@@ -118,6 +118,17 @@ class FakeRpc:
                              "logs": [{"address": token, "topics": [TRANSFER_TOPIC, t_addr(frm), t_addr(to)],
                                        "data": "0x" + amount.to_bytes(32, "big").hex()}]}
 
+    def add_x402_settlement(self, tx, token, payer, pay_to, amount, block, nonce=None, sender=None, status=1):
+        """A transferWithAuthorization receipt: AuthorizationUsed + Transfer from the token contract."""
+        from replay8004.checkers.x402 import AUTHORIZATION_USED_TOPIC
+        logs = []
+        if nonce:
+            logs.append({"address": token, "topics": [AUTHORIZATION_USED_TOPIC, t_addr(payer), nonce], "data": "0x"})
+        logs.append({"address": token, "topics": [TRANSFER_TOPIC, t_addr(payer), t_addr(pay_to)],
+                     "data": "0x" + amount.to_bytes(32, "big").hex()})
+        self.receipts[tx] = {"blockNumber": hex(block), "blockHash": "0x" + "ab" * 32, "status": hex(status),
+                             "from": sender or "0x5555555555555555555555555555555555555555", "logs": logs}
+
     def set_balance(self, token, holder, block, amount):
         data = BALANCE_OF + encode(["address"], [holder]).hex()
         self.calls[(token.lower(), data, block)] = "0x" + amount.to_bytes(32, "big").hex()

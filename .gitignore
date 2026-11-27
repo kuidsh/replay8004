@@ -26,3 +26,16 @@ keystore/
 
 # Self Agent ID sessions hold the generated agent key
 .self/
+
+# Claude Code personal settings
+.claude/settings.local.json
+
+# v0.5 build outputs (contracts, TS client, status page)
+contracts/node_modules/
+contracts/canonical/node_modules/
+contracts/out/*
+!contracts/out/ReplayGate.json
+contracts/out/canonical/
+clients/ts/node_modules/
+clients/ts/dist/
+site/

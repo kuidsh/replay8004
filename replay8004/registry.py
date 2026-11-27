@@ -4,6 +4,7 @@ Signatures from erc-8004-contracts ValidationRegistryUpgradeable.sol (read 2026-
   validationRequest(address validatorAddress, uint256 agentId, string requestURI, bytes32 requestHash)
   validationResponse(bytes32 requestHash, uint8 response, string responseURI, bytes32 responseHash, string tag)
   getSummary(uint256 agentId, address[] validatorAddresses, string tag) -> (uint64 count, uint8 avgResponse)
+  getIdentityRegistry() -> address, getVersion() -> string, getAgentValidations(uint256) -> bytes32[]
   event ValidationRequest(address indexed validatorAddress, uint256 indexed agentId, string requestURI, bytes32 indexed requestHash)
 Only the agent's owner/operator may request; only the named validator may respond.
 """
@@ -22,6 +23,9 @@ SIG_REQUEST = "validationRequest(address,uint256,string,bytes32)"
 SIG_RESPONSE = "validationResponse(bytes32,uint8,string,bytes32,string)"
 SIG_SUMMARY = "getSummary(uint256,address[],string)"
 SIG_STATUS = "getValidationStatus(bytes32)"
+SIG_IDENTITY = "getIdentityRegistry()"
+SIG_VERSION = "getVersion()"
+SIG_AGENT_VALIDATIONS = "getAgentValidations(uint256)"
 TOPIC_REQUEST = "0x" + keccak(b"ValidationRequest(address,uint256,string,bytes32)").hex()
 
 
@@ -70,6 +74,42 @@ def decode_request_log(log: dict) -> dict:
     (uri,) = decode(["string"], bytes.fromhex(log["data"][2:]))
     return {"validator": "0x" + t[1][-40:].lower(), "agentId": int(t[2], 16), "requestHash": t[3].lower(),
             "requestURI": uri, "blockNumber": int(log["blockNumber"], 16), "txHash": log.get("transactionHash")}
+
+
+class DeploymentError(RuntimeError):
+    pass
+
+
+def verify_deployment(rpc, net) -> dict:
+    """Refuse a ValidationRegistry that isn't wired to the network's Identity Registry.
+
+    The Validation Registry spec is still a preview and the erc-8004-contracts README lists no Celo address,
+    so the address in networks.py (erc-8004-contracts scripts/addresses.ts) is checked on-chain before use:
+    getIdentityRegistry() must return net.identity. Returns {"identityRegistry", "version"}.
+    """
+    try:
+        raw = rpc.eth_call(net.validation, "0x" + _sel(SIG_IDENTITY).hex())
+    except Exception as e:  # no contract, revert, or RPC failure
+        raise DeploymentError(f"cannot read getIdentityRegistry() at {net.validation}: {e}") from e
+    if not raw or raw == "0x":
+        raise DeploymentError(f"no ValidationRegistry at {net.validation}")
+    (ident,) = decode(["address"], bytes.fromhex(raw[2:]))
+    if ident.lower() != net.identity.lower():
+        raise DeploymentError(f"{net.validation} points at identity registry {ident}, expected {net.identity}")
+    try:
+        (version,) = decode(["string"], bytes.fromhex(rpc.eth_call(net.validation, "0x" + _sel(SIG_VERSION).hex())[2:]))
+    except Exception:
+        version = "unknown"
+    return {"identityRegistry": ident.lower(), "version": version}
+
+
+def encode_agent_validations(agent_id: int) -> str:
+    return "0x" + (_sel(SIG_AGENT_VALIDATIONS) + encode(["uint256"], [int(agent_id)])).hex()
+
+
+def decode_agent_validations(raw: str) -> list[str]:
+    (hashes,) = decode(["bytes32[]"], bytes.fromhex(raw[2:]))
+    return ["0x" + h.hex() for h in hashes]
 
 
 class Sender:

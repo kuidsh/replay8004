@@ -16,6 +16,10 @@
   head - reorg_buffer. It is re-signed, with the same calldata, only if at that same block the nonce is used up
   and the registry still has no answer (our tx reverted, or the wallet was used elsewhere).
 
+  Paid mode (billing given): after the daily cap, a request is answered only if the agent's free monthly quota, the
+  allowlist or purchased credits cover it; otherwise it is held (never scored 0 for non-payment) and expires
+  unanswered after plan.max_hold_polls. Usage is counted in the same state write as the signed answer.
+
   Dry run (no sender): reports the answers it *would* send (calldata included) but writes no evidence and
   leaves every request pending with the evidence chain head unchanged. Only scan progress is saved, so a
   later live run on the same state answers everything the dry run saw.
@@ -26,7 +30,7 @@ import copy
 import datetime as dt
 import logging
 
-from . import __version__, evidence, job as jobmod, registry
+from . import __version__, billing as billmod, evidence, job as jobmod, registry, store as storemod
 from .checkers import CHECKERS, TAGS, Verdict
 
 log = logging.getLogger("replay8004")
@@ -39,7 +43,8 @@ def _now() -> str:
 class Worker:
     def __init__(self, *, network, rpc, store, sink, validator: str, sender=None, fetch=jobmod.fetch,
                  reorg_buffer: int = 3, chunk: int = 5_000, max_pending_polls: int = 120, max_attempts: int = 3,
-                 max_answers_per_day: int = 20, max_answers_per_agent_per_day: int = 5, clock=_now):
+                 max_answers_per_day: int = 20, max_answers_per_agent_per_day: int = 5, clock=_now,
+                 billing=None):
         self.net, self.rpc, self.store, self.sink = network, rpc, store, sink
         self.validator = validator.lower()
         self.sender, self.fetch, self.clock = sender, fetch, clock
@@ -48,10 +53,13 @@ class Worker:
         # gas guard: anyone can name this validator, and every answer costs gas. Over the cap, requests wait for a
         # later UTC day (oldest first) instead of being answered; 0 pauses answering entirely.
         self.max_per_day, self.max_per_agent = max_answers_per_day, max_answers_per_agent_per_day
+        self.billing = billing  # None = free validator: every request within the daily cap is answered
+        self._head = None
 
     # -- scanning -------------------------------------------------------------
     def _scan(self, st: dict) -> list[dict]:
-        head = self.rpc.block_number() - self.reorg_buffer
+        self._head = self.rpc.block_number()
+        head = self._head - self.reorg_buffer
         found, start = [], st["last_block"] + 1
         while start <= head:
             end = min(head, start + self.chunk - 1)
@@ -86,7 +94,9 @@ class Worker:
         bundle = evidence.build(seq=chain["seq"] + 1, prev=chain["head"], validator=self.validator,
                                 network=self.net.name, chain_id=self.net.chain_id, agent_id=req["agentId"],
                                 request_hash=req["requestHash"], request_uri=req["requestURI"], job=job, kind=kind,
-                                verdict=v, checked_at=self.clock(), version=__version__)
+                                verdict=v, checked_at=self.clock(), version=__version__,
+                                request_block=req.get("blockNumber"), request_tx=req.get("txHash"),
+                                checked_block=self._head)
         rh = evidence.response_hash(bundle)
         # live: the evidence bundle is written BEFORE the answer is sent; dry run: nothing is written
         uri = self.sink.url_for(bundle) if self.dry_run else self.sink.put(bundle)
@@ -134,7 +144,8 @@ class Worker:
             if s:
                 if s["responseHash"] != f["responseHash"]:
                     log.error("%s holds a different answer on-chain; leaving it untouched", h)
-                st["done"][h] = {"score": s["response"], "tx": f["tx"], "responseHash": s["responseHash"]}
+                st["done"][h] = {"score": s["response"], "tx": f["tx"], "responseHash": s["responseHash"],
+                                 **({"paidBy": f["paidBy"]} if "paidBy" in f else {})}
                 del st["inflight"][h]
                 self.store.save(st)
                 confirmed.append({"requestHash": h, **st["done"][h]})
@@ -175,8 +186,9 @@ class Worker:
 
     def poll_once(self) -> dict:
         st = self.store.load()
-        for k in ("inflight", "failed"):  # state files written before these fields existed
-            st.setdefault(k, {})
+        added = storemod.migrate(st)  # older state: add missing keys only (never last_block/seq/head/done)
+        if added and not self.dry_run:
+            log.warning("state migrated: added %s", added)
         confirmed = [] if self.dry_run else self._reconcile(st)
         new = self._scan(st)
         for q in new:
@@ -184,7 +196,11 @@ class Worker:
                 st["pending"][q["requestHash"]] = dict(q, polls=0)
         chain = {"seq": st["seq"], "head": st["head"]}  # a dry run advances only this local copy
         daily = copy.deepcopy(self._today(st)) if self.dry_run else self._today(st)
-        answered, still, capped = [], 0, 0
+        usage = copy.deepcopy(st["usage"]) if self.dry_run else st["usage"]
+        month = billmod.month_of(self.clock())
+        if self.billing:
+            self.billing.refresh()
+        answered, still, capped, held, expired = [], 0, 0, 0, 0
         # deterministic order (request block, then hash): the evidence chain then doesn't depend on how the
         # state file happened to order its keys, and a dry run previews exactly what the live run sends
         for h, req in sorted(st["pending"].items(), key=lambda kv: (kv[1].get("blockNumber", 0), kv[0])):
@@ -192,6 +208,24 @@ class Worker:
                 still += 1
                 capped += 1
                 continue
+            how = None
+            if self.billing:  # paid mode: free quota, allowlist or credits; checked before any RPC as well
+                acct = billmod.account(self.net.chain_id, req["agentId"])
+                how = billmod.admit(acct, month, self.billing.purchased(acct), usage, self.billing.plan)
+                if how is None:
+                    n_held = req.get("held", 0) + 1
+                    if not self.dry_run and n_held >= self.billing.plan.max_hold_polls:
+                        # expire unanswered: never a 0 for non-payment
+                        st["expired"][h] = {"agentId": req["agentId"], "reason": "payment_required",
+                                            "blockNumber": req.get("blockNumber")}
+                        del st["pending"][h]
+                        expired += 1
+                        continue
+                    if not self.dry_run:
+                        req["held"] = n_held
+                    held += 1
+                    still += 1
+                    continue
             try:
                 prior = self._on_chain(h)  # e.g. the local state was lost after answering
                 if not prior:
@@ -220,6 +254,9 @@ class Worker:
                 log.error("could not answer %s: %s", h, e)
                 still += 1
                 continue
+            if how:
+                billmod.consume(acct, month, how, usage)
+                res["paidBy"] = how
             answered.append(res)
             self._count(daily, req["agentId"])
             if self.dry_run:
@@ -227,11 +264,12 @@ class Worker:
                 continue
             st["seq"], st["head"] = chain["seq"], chain["head"]
             st["inflight"][h] = dict(signed, calldata=res["calldata"], responseHash=res["responseHash"],
-                                     score=res["score"], attempts=1, agentId=req["agentId"])
+                                     score=res["score"], attempts=1, agentId=req["agentId"],
+                                     **({"paidBy": how} if how else {}))
             del st["pending"][h]
             self.store.save(st)  # persisted BEFORE broadcasting: a crash or lost reply never double-answers
             self._broadcast(h, signed["raw"])
         self.store.save(st)  # dry run: only scan progress and newly seen (still pending) requests change
         return {"scanned_to": st["last_block"], "new": len(new), "answered": answered, "confirmed": confirmed,
-                "pending": still, "capped": capped, "inflight": len(st["inflight"]), "failed": len(st["failed"]),
+                "pending": still, "capped": capped, "held": held, "expired": expired, "inflight": len(st["inflight"]), "failed": len(st["failed"]),
                 "answeredToday": daily["total"], "dryRun": self.dry_run}

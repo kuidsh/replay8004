@@ -47,10 +47,42 @@ Parameters:
     Type: String
     Default: ""
     Description: Managed policy set as the permissions boundary of every IAM role this stack creates (infra/iam/).
+  # -- paid mode (v0.5, docs/PAID.md). Off by default: with PaidMode=0 none of the paywall resources exist. --
+  PaidMode:
+    Type: String
+    Default: "0"
+    AllowedValues: ["0", "1"]
+    Description: 1 = answer only requests covered by the free quota, the allowlist or x402 credits (Sepolia only for now).
+  PayTo:
+    Type: String
+    Default: ""
+    Description: Operator address that receives USDC for credit packs (no key needed here). Not the validator wallet.
+  FacilitatorKeySecretArn:
+    Type: String
+    Default: ""
+    Description: Secrets Manager secret holding the Celo x402 facilitator API key (needed for /settle).
+  FreePerMonth:
+    Type: Number
+    Default: 25
+    MinValue: 0
+    Description: Free answers per agent per calendar month in paid mode.
+  FreeAccounts:
+    Type: String
+    Default: ""
+    Description: Comma-separated "<chainId>:<agentId>" accounts that never pay (open-source agents).
+
+Rules:
+  PaidModeNotOnMainnetYet:  # paid mode is untested end to end; mainnet stays free until a Sepolia purchase works
+    RuleCondition: !Equals [!Ref Network, celo-mainnet]
+    Assertions:
+      - Assert: !Equals [!Ref PaidMode, "0"]
+        AssertDescription: PaidMode=1 is refused on celo-mainnet (run it on Sepolia first; see docs/PAID.md).
 
 Conditions:
   HasKey: !Not [!Equals [!Ref ValidatorKeySecretArn, ""]]
   HasBoundary: !Not [!Equals [!Ref PermissionsBoundaryArn, ""]]
+  Paid: !Equals [!Ref PaidMode, "1"]
+  HasFacilitatorKey: !And [!Condition Paid, !Not [!Equals [!Ref FacilitatorKeySecretArn, ""]]]
 
 Resources:
   # Kept when the stack is deleted: its files are locked (and on-chain answers link to them). Delete it by hand
@@ -131,6 +163,9 @@ Resources:
           EVIDENCE_RETENTION_DAYS: !Ref EvidenceRetentionDays
           MAX_ANSWERS_PER_DAY: !Ref MaxAnswersPerDay
           MAX_ANSWERS_PER_AGENT_PER_DAY: !Ref MaxAnswersPerAgentPerDay
+          PAID_MODE: !Ref PaidMode
+          FREE_PER_MONTH: !Ref FreePerMonth
+          FREE_ACCOUNTS: !Ref FreeAccounts
       Policies:
         - DynamoDBCrudPolicy: {TableName: !Ref StateTable}
         - Statement:
@@ -153,6 +188,52 @@ Resources:
             RetryPolicy: {MaximumRetryAttempts: 0}   # the default retries a failed run 185 times; the next minute retries anyway
             PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]
 
+  # x402 credit-pack paywall: only with PaidMode=1. Same conventions as the worker: fixed name, log group first,
+  # boundary, tags, no reserved concurrency (this account's quota can't spare it; see tests/test_packaging.py).
+  PaywallLogs:
+    Type: AWS::Logs::LogGroup
+    Condition: Paid
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-paywall"
+      RetentionInDays: 30
+      Tags: [{Key: Project, Value: replay8004}, {Key: Stack, Value: !Ref AWS::StackName}]
+
+  PaywallFunction:
+    Type: AWS::Serverless::Function
+    Condition: Paid
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-paywall"
+      LoggingConfig: {LogGroup: !Ref PaywallLogs}
+      PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]
+      CodeUri: ../build/lambda
+      Tags: {Project: replay8004, Stack: !Ref AWS::StackName}
+      Handler: replay8004.lambda_handler.paywall_handler
+      Runtime: python3.11
+      Architectures: [arm64]
+      MemorySize: 256
+      Timeout: 30
+      FunctionUrlConfig:
+        AuthType: NONE   # x402 is the authentication; the function holds no key that can move funds
+      Environment:
+        Variables:
+          NETWORK: !Ref Network
+          REPLAY8004_ALLOW_MAINNET: !Ref AllowMainnet
+          STATE_TABLE: !Ref StateTable
+          PAY_TO: !Ref PayTo
+          PAID_MODE: !Ref PaidMode
+          FREE_PER_MONTH: !Ref FreePerMonth
+          FREE_ACCOUNTS: !Ref FreeAccounts
+          FACILITATOR_KEY_SECRET_ARN: !Ref FacilitatorKeySecretArn
+      Policies:
+        - DynamoDBCrudPolicy: {TableName: !Ref StateTable}
+        - !If
+          - HasFacilitatorKey
+          - Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref FacilitatorKeySecretArn
+          - !Ref AWS::NoValue
+
 Outputs:  # every name needed to take the project down (docs/AWS-TEARDOWN.md)
   EvidenceBucketName:
     Value: !Ref EvidenceBucket
@@ -170,3 +251,9 @@ Outputs:  # every name needed to take the project down (docs/AWS-TEARDOWN.md)
     Value: !Sub "https://${EvidenceBucket}.s3.${AWS::Region}.amazonaws.com/evidence"
   StateTableName:
     Value: !Ref StateTable
+  PaywallUrl:
+    Condition: Paid
+    Value: !GetAtt PaywallFunctionUrl.FunctionUrl
+  PaywallFunctionName:
+    Condition: Paid
+    Value: !Ref PaywallFunction

@@ -1,0 +1,63 @@
+{
+  "schema": "replay8004/status@1",
+  "validator": "0x3333333333333333333333333333333333333333",
+  "network": "celo-sepolia",
+  "generatedAt": "2026-11-22T00:00:00+00:00",
+  "chain": {
+    "intact": true,
+    "detail": "3 bundles, chain intact",
+    "head": "0x47d276bb8ddac78e0fb8858af61b7be380b525b3e023e08ea61cc7aa7786dce3"
+  },
+  "answered": 3,
+  "agents": 2,
+  "invalid": 1,
+  "passRate": 0.3333,
+  "avgScore": 50.0,
+  "medianSecondsToDecide": 49,
+  "byTag": {
+    "replay:erc20_transfer": {
+      "count": 2,
+      "avg": 75.0,
+      "passed": 1
+    },
+    "replay:invalid": {
+      "count": 1,
+      "avg": 0.0,
+      "passed": 0
+    }
+  },
+  "scoreBuckets": {
+    "0": 1,
+    "100": 1,
+    "50-89": 1
+  },
+  "recent": [
+    {
+      "seq": 3,
+      "agentId": 7,
+      "tag": "replay:invalid",
+      "score": 0,
+      "requestHash": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "checkedAt": "2026-11-20T00:00:00+00:00",
+      "responseHash": "0x47d276bb8ddac78e0fb8858af61b7be380b525b3e023e08ea61cc7aa7786dce3"
+    },
+    {
+      "seq": 2,
+      "agentId": 42,
+      "tag": "replay:erc20_transfer",
+      "score": 50,
+      "requestHash": "0x98fb2d6bfd6c8a23245987c382c8348a268601dd507afb2f9461d581efc5d9ae",
+      "checkedAt": "2026-11-20T00:00:00+00:00",
+      "responseHash": "0xa7ec963fa0fafdf61142ca1cc9c22088221b793a07aef713e9ae80d5a4f9661e"
+    },
+    {
+      "seq": 1,
+      "agentId": 42,
+      "tag": "replay:erc20_transfer",
+      "score": 100,
+      "requestHash": "0xb99208c4ab5645d735b190ec253455a179ba0eda095730deb49d9dc0d55cd2b3",
+      "checkedAt": "2026-11-20T00:00:00+00:00",
+      "responseHash": "0x34d061c48fda73cc7a28929b6aea411ea7f4faa7ee23871179ba238af7b9556c"
+    }
+  ]
+}

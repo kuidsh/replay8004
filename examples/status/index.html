@@ -1,0 +1,18 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>replay8004 status</title><style>
+:root{--bg:#f6f7f5;--fg:#18201c;--muted:#5d6a63;--line:#d9dfdb;--card:#fff;--ok:#1d7a4a;--bad:#a52a2a}
+@media (prefers-color-scheme:dark){:root{--bg:#111613;--fg:#e5ece8;--muted:#9aa9a1;--line:#2a3530;--card:#18201c;--ok:#7fd3a3;--bad:#f09a9a}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}main{max-width:900px;margin:0 auto;padding:28px 16px;display:grid;gap:22px}
+h1{margin:0;font-size:1.6rem}.muted{color:var(--muted)}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.k{background:var(--card);border:1px solid var(--line);padding:12px}.k b{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto;background:var(--card);border:1px solid var(--line)}table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted);font-weight:500}.n{text-align:right;font-variant-numeric:tabular-nums}
+.ok{color:var(--ok)}.bad{color:var(--bad)}code{font-size:.85em}</style></head><body><main>
+<div><h1>replay8004 status</h1><p class=muted>Validator <code>0x3333333333333333333333333333333333333333</code> on celo-sepolia · generated 2026-11-22T00:00:00+00:00 · rebuilt from public evidence bundles only</p></div>
+<div class=kpis><div class=k><b>3</b>validations answered</div><div class=k><b>2</b>distinct agents</div>
+<div class=k><b>33.3%</b>passed (score ≥ 90)</div><div class=k><b>49 s</b>median request → decision</div>
+<div class=k><b>1</b>invalid jobs (answered 0 with a reason)</div><div class=k><b class="ok">intact</b>evidence chain · 3 bundles, chain intact</div></div>
+<section><h2>By claim type</h2><div class=tbl><table><thead><tr><th>tag</th><th class=n>answered</th><th class=n>avg score</th><th class=n>passed</th></tr></thead><tbody><tr><td><code>replay:erc20_transfer</code></td><td class=n>2</td><td class=n>75.0</td><td class=n>1</td></tr><tr><td><code>replay:invalid</code></td><td class=n>1</td><td class=n>0.0</td><td class=n>0</td></tr></tbody></table></div></section>
+<section><h2>Recent answers</h2><div class=tbl><table><thead><tr><th class=n>seq</th><th class=n>agent</th><th>tag</th><th class=n>score</th><th>checked</th><th>evidence</th></tr></thead><tbody><tr><td class=n>3</td><td class=n>7</td><td><code>replay:invalid</code></td><td class=n>0</td><td>2026-11-20T00:00:00+00:00</td><td><a href="#example/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.json"><code>0xeeeeeeeeeeee…</code></a></td></tr><tr><td class=n>2</td><td class=n>42</td><td><code>replay:erc20_transfer</code></td><td class=n>50</td><td>2026-11-20T00:00:00+00:00</td><td><a href="#example/0x98fb2d6bfd6c8a23245987c382c8348a268601dd507afb2f9461d581efc5d9ae.json"><code>0x98fb2d6bfd6c…</code></a></td></tr><tr><td class=n>1</td><td class=n>42</td><td><code>replay:erc20_transfer</code></td><td class=n>100</td><td>2026-11-20T00:00:00+00:00</td><td><a href="#example/0xb99208c4ab5645d735b190ec253455a179ba0eda095730deb49d9dc0d55cd2b3.json"><code>0xb99208c4ab56…</code></a></td></tr></tbody></table></div></section>
+<p class=muted>Chain head <code>0x47d276bb8ddac78e0fb8858af61b7be380b525b3e023e08ea61cc7aa7786dce3</code>. Verify yourself: <code>replay8004 verify-evidence &lt;folder&gt;</code>. Time to decide counts blocks between the request and the head the validator had seen, at ≈1 s per block; it includes the confirmation wait.</p>
+</main></body></html>

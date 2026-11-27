@@ -22,10 +22,13 @@ def test_template_uses_the_staged_folder():
 
 def test_every_role_the_stack_creates_can_take_the_boundary():
     t = (ROOT / "infra" / "template.yaml").read_text(encoding="utf-8")
-    assert t.count("PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]") == 2
+    # worker role, scheduler role, paywall role (the last only exists with PaidMode=1)
+    assert t.count("PermissionsBoundary: !If [HasBoundary, !Ref PermissionsBoundaryArn, !Ref AWS::NoValue]") == 3
     assert 'FunctionName: !Sub "${AWS::StackName}-worker"' in t   # names match the replay8004-* IAM scopes
+    assert 'FunctionName: !Sub "${AWS::StackName}-paywall"' in t
     assert 'Name: !Sub "${AWS::StackName}-every-minute"' in t
     assert t.index("  WorkerLogs:") < t.index("  WorkerFunction:")   # log group exists before the first run
+    assert t.index("  PaywallLogs:") < t.index("  PaywallFunction:")
 
 
 def test_iam_policies_are_valid_and_carry_no_account_id():
@@ -76,7 +79,23 @@ def test_retention_parameter_reaches_the_lambda():
 def test_no_reserved_concurrency():
     # new accounts have a concurrency quota of 10 and AWS keeps 10 unreserved, so any reservation fails to deploy
     # (CREATE_FAILED on 2026-11-26). Exactly-once comes from the conditional state write + on-chain check instead.
-    assert "ReservedConcurrentExecutions" not in _template()["Resources"]["WorkerFunction"]["Properties"]
+    res = _template()["Resources"]
+    for fn in ("WorkerFunction", "PaywallFunction"):
+        assert "ReservedConcurrentExecutions" not in res[fn]["Properties"], fn
+
+
+def test_paid_mode_is_off_by_default_and_refused_on_mainnet():
+    t = _template()
+    assert t["Parameters"]["PaidMode"]["Default"] == "0"
+    for name in ("PaywallFunction", "PaywallLogs"):  # nothing paid-mode exists unless PaidMode=1
+        assert t["Resources"][name]["Condition"] == "Paid", name
+    rule = t["Rules"]["PaidModeNotOnMainnetYet"]
+    assert rule["RuleCondition"] == {"Fn::Equals": [{"Ref": "Network"}, "celo-mainnet"]}
+    assert rule["Assertions"][0]["Assert"] == {"Fn::Equals": [{"Ref": "PaidMode"}, "0"]}
+    env = t["Resources"]["WorkerFunction"]["Properties"]["Environment"]["Variables"]
+    assert env["PAID_MODE"] == {"Ref": "PaidMode"}
+    pw = t["Resources"]["PaywallFunction"]["Properties"]
+    assert pw["CodeUri"] == "../build/lambda" and pw["Runtime"] == "python3.11"
 
 
 def test_schedule_does_not_retry_failed_runs():

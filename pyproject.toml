@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "replay8004"
-version = "0.1.1"
+version = "0.5.0"
 description = "Re-execution validator for the ERC-8004 Validation Registry on Celo: checks on-chain claims made by AI agents and answers with hash-chained evidence."
 readme = "README.md"
 license = "Apache-2.0"
@@ -15,9 +15,16 @@ dependencies = ["eth-abi>=5,<7", "eth-account>=0.11,<0.15", "eth-hash[pycryptodo
 [project.optional-dependencies]
 aws = ["boto3>=1.34"]
 dev = ["pytest>=8"]
+contracts = ["web3>=7,<8", "eth-tester>=0.12.0b1,<0.14.0b1", "py-evm>=0.12.0b2,<0.13.0b1"]  # betas only; no pysha3 (no Windows wheel)
+mcp = ["mcp>=1.2,<2"]
 
 [project.scripts]
 replay8004 = "replay8004.cli:main"
+replay8004-mcp = "replay8004.mcp_server:main"
 
 [tool.setuptools]
 packages = ["replay8004", "replay8004.checkers"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

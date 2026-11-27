@@ -1,14 +1,28 @@
 {
-  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "active": true,
+  "description": "Re-execution validator for the ERC-8004 Validation Registry on Celo. Name the replay8004-validator account below as validatorAddress in validationRequest. Jobs follow replay8004/job@1; answers are 0-100 with public, hash-chained evidence. Claim kinds: contract_read, erc20_balance, erc20_transfer, x402_settlement.",
+  "image": "",
   "name": "replay8004 validator",
-  "description": "Re-execution validator for the ERC-8004 Validation Registry on Celo. Name this address as validatorAddress in validationRequest; jobs follow replay8004/job@1. Scores 0-100 with public, hash-chained evidence.",
-  "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9'%3E%3Crect width='9' height='9' fill='%230d6b5c'/%3E%3Cpath d='M2 5l2 2 3-5' fill='none' stroke='%23fff'/%3E%3C/svg%3E",
+  "registrations": [],
   "services": [
     {
-      "name": "validator",
-      "endpoint": "eip155:42220:<validator address>"
+      "endpoint": "https://github.com/your-user/replay8004",
+      "name": "web"
+    },
+    {
+      "endpoint": "eip155:11142220:0x3333333333333333333333333333333333333333",
+      "name": "replay8004-validator",
+      "tags": [
+        "replay:contract_read",
+        "replay:erc20_balance",
+        "replay:erc20_transfer",
+        "replay:x402_settlement"
+      ],
+      "validationRegistry": "eip155:11142220:0x8004Cb1BF31DAf7788923b405b754f57acEB4272",
+      "version": "replay8004/job@1"
     }
   ],
-  "x402Support": false,
-  "active": true
+  "supportedTrust": [],
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "x402Support": false
 }

@@ -17,13 +17,19 @@ GENESIS = "0x" + "00" * 32
 
 def build(*, seq: int, prev: str, validator: str, network: str, chain_id: int, agent_id: int,
           request_hash: str, request_uri: str, job: dict | None, kind: str | None, verdict,
-          checked_at: str, version: str) -> dict:
-    return {"schema": SCHEMA, "seq": seq, "prev": prev, "validator": validator.lower(),
-            "network": network, "chainId": chain_id, "agentId": agent_id,
-            "requestHash": request_hash.lower(), "requestURI": request_uri[:2048], "job": job,
-            "checker": kind, "checkerVersion": version,
-            "verdict": {"score": verdict.score, "findings": verdict.findings, "observed": verdict.observed},
-            "checkedAt": checked_at}
+          checked_at: str, version: str, request_block: int | None = None,
+          checked_block: int | None = None, request_tx: str | None = None) -> dict:
+    b = {"schema": SCHEMA, "seq": seq, "prev": prev, "validator": validator.lower(),
+         "network": network, "chainId": chain_id, "agentId": agent_id,
+         "requestHash": request_hash.lower(), "requestURI": request_uri[:2048], "job": job,
+         "checker": kind, "checkerVersion": version,
+         "verdict": {"score": verdict.score, "findings": verdict.findings, "observed": verdict.observed},
+         "checkedAt": checked_at}
+    # where the request sits on-chain and the head the validator had seen when it decided (0.5; optional, so
+    # bundles written by 0.1.1 still verify). The status page uses it for time-to-answer.
+    if request_block is not None:
+        b["request"] = {"block": request_block, "tx": request_tx, "checkedAtBlock": checked_block}
+    return b
 
 
 def response_hash(bundle: dict) -> str:

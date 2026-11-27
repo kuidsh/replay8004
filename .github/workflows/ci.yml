@@ -1,14 +1,27 @@
 name: ci
 on: [push, pull_request]
 jobs:
-  test:
+  python:
     runs-on: ubuntu-latest
     strategy:
-      matrix: {python: ["3.11", "3.12"]}
+      matrix: {python: ["3.11", "3.12"]}   # 3.11 = the Lambda runtime
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "${{ matrix.python }}"}
-      - run: pip install -e ".[dev]" cfn-lint
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - run: cd contracts && npm i --no-save --prefix . solc@0.8.28 && cd .. && node contracts/build.js
+      - run: cd contracts/canonical && npm i --no-save --prefix . solc@0.8.24 @openzeppelin/contracts@5.4.0 @openzeppelin/contracts-upgradeable@5.4.0 && cd ../.. && node contracts/canonical/build.js
+      - run: pip install -e ".[dev,contracts,mcp]" cfn-lint
       - run: pytest -q
       - run: cfn-lint infra/template.yaml
+  typescript:
+    runs-on: ubuntu-latest
+    defaults: {run: {working-directory: clients/ts}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - run: npm ci || npm install
+      - run: npm test

@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 
 from .erc20 import check_erc20_balance, check_erc20_transfer
 from .read import check_contract_read
+from .x402 import check_x402_settlement
 
 
 @dataclass
@@ -27,6 +28,7 @@ CHECKERS = {
     "erc20_transfer": check_erc20_transfer,
     "erc20_balance": check_erc20_balance,
     "contract_read": check_contract_read,
+    "x402_settlement": check_x402_settlement,
 }
 
 TAGS = {k: f"replay:{k}" for k in CHECKERS}
