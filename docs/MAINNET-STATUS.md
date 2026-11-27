@@ -87,10 +87,10 @@ No `usage`/`expired` keys yet. The v0.5 worker adds them (`store.migrate`) in it
 The changesets were first created with `sam deploy --no-execute-changeset` and the current parameters, reviewed, and then
 deployed with the same parameters and the same code artifact (`9edda1f2…`): Sepolia at 06:28 UTC, mainnet at 06:37 UTC.
 
-| stack | changeset | changes |
-|---|---|---|
-| replay8004-mainnet | `samcli-deploy1795759160` | `WorkerFunction` Modify (code + env `PAID_MODE=0`, `FREE_PER_MONTH=25`, `FREE_ACCOUNTS=""`), no replacement. Scheduler role + schedule: Modify, caused only by the `WorkerFunction.Arn` reference (the ARN doesn't change). |
-| replay8004-sepolia | `samcli-deploy1795759238` | the same three Modify entries, no replacement |
+| stack | changes |
+|---|---|
+| replay8004-mainnet | `WorkerFunction` Modify (code + env `PAID_MODE=0`, `FREE_PER_MONTH=25`, `FREE_ACCOUNTS=""`), no replacement. Scheduler role + schedule: Modify, caused only by the `WorkerFunction.Arn` reference (the ARN doesn't change). |
+| replay8004-sepolia | the same three Modify entries, no replacement |
 
 Not in either changeset: the evidence bucket, the DynamoDB table and its item. The Secrets Manager secret is
 not a stack resource (passed by ARN), so it can't be replaced. No paywall resources (`PaidMode=0`).
