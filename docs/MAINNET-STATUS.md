@@ -59,7 +59,7 @@ OK: 5 bundles, chain intact
  "byTag": {"replay:erc20_transfer": {"count": 5, "avg": 70.0, "passed": 3}}, "scoreBuckets": {"0": 1, "100": 3, "50-89": 1}}
 ```
 `medianSecondsToDecide` is empty because the page only uses bundles that carry `request.block` (v0.5+). The
-on-chain median is 30 s (table below). `site/` is git-ignored and **not published** (see docs/LAUNCH-STATUS.md, item e).
+on-chain median is 30 s (table below). `site/` is git-ignored; the page is published to `evidence/status/` (docs/LAUNCH-STATUS.md, item e).
 
 ## 4. Every ValidationRequest / ValidationResponse for the validator
 

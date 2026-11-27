@@ -79,7 +79,7 @@ Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can f
 
 ### D. Distribution strategy
 > Distribution goes through the tools agents already use: Celo's agent-skills repo, an MCP server, a TypeScript client
-> on npm and a Python package on PyPI, plus the Celo forum and Discord. Every answer is public evidence that others can
+> on npm (@replay8004/client) and a Python package on PyPI (replay8004), both published, plus the Celo forum and Discord. Every answer is public evidence that others can
 > link to, and a public status page is rebuilt from that evidence alone. **[NEEDS DAVID: prior work where you shipped
 > and got users, e.g. the election-day integrity system and agentguard, with concrete numbers]**
 

@@ -68,7 +68,8 @@ drain it. Measured cost: ≈ 0.027 CELO (≈ US$0.0016, CeloScan) per answer plu
 For consumers there is `getSummary(agentId, [validator], tag)`, a Solidity gate (`ReplayGate.sol`: `onlyValidatedAgent`,
 `onlyValidatedClaim`) with the same rules in Python and TypeScript, a read-only MCP server, an Agent Skill, a TypeScript
 client (`@replay8004/client`) and a status page rebuilt from the public evidence alone. All of it is built and tested
-(v0.5, deployed 2026-11-27); the TypeScript client and the PyPI package are not published yet.
+(v0.5, deployed 2026-11-27). Install: `pip install replay8004` ([PyPI](https://pypi.org/project/replay8004/)) and `npm install @replay8004/client`
+([npm](https://www.npmjs.com/package/@replay8004/client)), both published 2026-11-27.
 
 ## Sustainability: paid mode (built, off)
 After the grant, x402 **credit packs** pay for gas and AWS: 5 USDC for 250 validations, 40 USDC for 2,500. Packs, not
@@ -84,12 +85,13 @@ Sepolia purchase has worked end to end. No buyer has been asked yet.
 | # | deliverable | weeks | amount |
 |---|---|---|---|
 | 0 | Contract signed (Prezenti's 20%) | — | US$2,400 |
-| 1 | `@replay8004/client` on npm and `replay8004` on PyPI; 5-minute quick-start; the Validation Registry documented in Celo's `8004` agent skill (PR ready); registry migration if it is redeployed; **10 external agents** validated | 5 | US$3,600 |
+| 1 | 5-minute quick-start; the Validation Registry documented in Celo's `8004` agent skill (PR ready); registry migration if it is redeployed; **10 external agents** validated | 5 | US$3,600 |
 | 2 | Status page published; `ReplayGate` contract package published; integrations with 2 Celo agent frameworks; first outside contract or marketplace gating on replay8004 | 5 | US$3,000 |
 | 3 | **100 agents or 2,000 mainnet validations**; paid mode on (Sepolia first, then mainnet); public usage report | 6 | US$3,000 |
 
 Already done before applying: the validator live on mainnet with 5 answers, ERC-8004 #10141, Self Agent ID #218, and
-v0.5 deployed (x402 receipts, the on-chain `doctor` check, request-block evidence); the TS client, the gate contract, the
+v0.5 deployed (x402 receipts, the on-chain `doctor` check, request-block evidence), `replay8004` on PyPI and
+`@replay8004/client` on npm, a public status page; the gate contract, the
 MCP server, the skill PR and paid mode are built and tested.
 
 ## Activation path (first 10–100 agents)

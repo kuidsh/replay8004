@@ -8,7 +8,7 @@ Every "done" below was verified by an on-chain read, the GitHub API, the npm/PyP
 | a | Validator registered as an ERC-8004 agent | **done** (agent **#10141**); registration file **updated** 2026-11-27 | below |
 | b | Self Agent ID | **done** (**#218**) | below |
 | c | Public GitHub repo, green CI, matching what's deployed | **done** 2026-11-27: public, CI green, `main` = deployed v0.5, site on GitHub Pages | below |
-| d | `@replay8004/client` on npm, `replay8004` on PyPI | **prepared**, not published; both names unclaimed | below |
+| d | `@replay8004/client` on npm, `replay8004` on PyPI | **done** 2026-11-27 (0.5.0 on both) | below |
 | e | Status page published | **done** 2026-11-27 | below |
 | f | celo-org/agent-skills PR | **ready** on a local branch, typechecked, verify code tested on mainnet; not opened | below |
 | g | GitHub issue to erc-8004/erc-8004-contracts | **drafted** | docs/OUTREACH.md §4 |
@@ -43,7 +43,13 @@ your agent #218 should list the validator address. If Self ever asks you to re-v
   was ever committed; the AWS account ID appears in no tracked file or commit; commits use the GitHub no-reply email.
 - Remaining: nothing.
 
-## d. npm and PyPI: prepared, not published
+## d. npm and PyPI: published 2026-11-27
+- PyPI: https://pypi.org/project/replay8004/ (0.5.0, wheel + sdist). Checked: a clean `pip install replay8004` runs `replay8004 doctor`.
+- npm: https://www.npmjs.com/package/@replay8004/client (0.5.0, 4 files). Checked: a clean `npm install @replay8004/client viem` imports it.
+- Follow-up: raise the dev pin `viem@2.21.54` (npm audit: viem moderate, ws high, dev-only; the package doesn't ship
+  viem, it is a peer dependency) and the peer floor, then publish 0.5.1. Delete the account-wide PyPI token.
+
+How it was prepared:
 - `https://registry.npmjs.org/@replay8004%2fclient` → 404 and `https://pypi.org/pypi/replay8004/json` → 404: both
   names are free today. The `@replay8004` scope needs an npm organization named `replay8004` (free for public packages).
 - PyPI: `python -m build` → `replay8004-0.5.0-py3-none-any.whl` (28 files) + sdist; `twine check` PASSED.

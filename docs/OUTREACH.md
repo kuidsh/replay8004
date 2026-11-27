@@ -1,7 +1,7 @@
 # Outreach drafts (David posts them; nothing here has been posted or sent)
 
 Post only after the repo is public: every link points to it. v0.5 is deployed (2026-11-27), so the texts match the
-live validator (x402 receipts, the `doctor` check); the TypeScript client is in the repo but not on npm yet. Facts as of 2026-11-27 (docs/MAINNET-STATUS.md).
+live validator (x402 receipts, the `doctor` check); `pip install replay8004` and `npm install @replay8004/client` work. Facts as of 2026-11-27 (docs/MAINNET-STATUS.md).
 
 ---
 
@@ -82,7 +82,7 @@ pending and are never scored 0.
 
 **Free for agents building on Celo**, with a daily cap per agent so nobody can drain the validator. Python:
 ```bash
-git clone https://github.com/kuidsh/replay8004 && cd replay8004 && pip install -e .
+pip install replay8004
 replay8004 job x402-settlement --agent-id <id> --validator 0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952 \
   --requirements accepted.json --settlement "$PAYMENT_RESPONSE"     # prints the validationRequest calldata
 ```

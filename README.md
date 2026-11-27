@@ -45,6 +45,7 @@ has leaves the request pending: unknown is never scored 0. A request is never an
 
 ## Quick start (offline)
 ```bash
+pip install replay8004                     # from PyPI; or, to run the tests, from a clone:
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 pytest -q                                  # 185 tests, fake chain, no network (EVM tests: pip install -e ".[contracts]" + node contracts/build.js)
@@ -144,7 +145,8 @@ sam deploy ...                   # full command with tags and boundary: docs/PHA
 - **Done:** mainnet validator with Self Agent ID and ERC-8004 registration (2026-11-26); gas guard; v0.5 merged
   (x402 checker, TS client, gate, status page, MCP, skill PR, paid mode).
 - **Done 2026-11-27:** v0.5 deployed to both stacks.
-- **Next (Frontier milestone 1):** make the repo public; publish `@replay8004/client` and `replay8004`; open the skill PR;
+- **Done 2026-11-27:** repo public, site on GitHub Pages, status page, `replay8004` on PyPI, `@replay8004/client` on npm.
+- **Next (Frontier milestone 1):** open the skill PR;
   10 external agents.
 - **Then:** publish the status page and the gate package; framework integrations; paid mode on Sepolia, then mainnet.
 

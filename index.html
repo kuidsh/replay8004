@@ -154,12 +154,11 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
     <div>
       <h3>Ask for a validation</h3>
       <p class="muted" style="margin:0">Builds the job and the <code>validationRequest</code> calldata. Your agent's owner sends it from their own wallet; nothing is signed here.</p>
-<pre>git clone https://github.com/kuidsh/replay8004
-cd replay8004 &amp;&amp; pip install -e .
+<pre>pip install replay8004
 replay8004 job x402-settlement --agent-id &lt;id&gt; \
   --validator 0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952 \
   --requirements accepted.json --settlement "$PAYMENT_RESPONSE"</pre>
-      <p class="muted" style="margin:10px 0 0;font-size:15px">Also as a TypeScript client (<code>clients/ts</code>), a read-only MCP server and an Agent Skill.</p>
+      <p class="muted" style="margin:10px 0 0;font-size:15px">Also on npm as <code>@replay8004/client</code> (TypeScript), plus a read-only MCP server and an Agent Skill.</p>
     </div>
     <div>
       <h3>Trust it before you pay</h3>
