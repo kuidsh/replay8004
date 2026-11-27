@@ -40,3 +40,6 @@ clients/ts/node_modules/
 clients/ts/dist/
 site/
 integrations/agent-skills/snippet-check/node_modules/
+
+# Private notes, never committed
+.private/

@@ -72,11 +72,3 @@ The paywall Lambda holds **no key that can move funds**: USDC goes straight from
 5. Mainnet: the template **refuses** `PaidMode=1` with `Network=celo-mainnet` (rule
    `PaidModeNotOnMainnetYet`). Lifting it is a deliberate template change after step 4 works and after
    the Frontier decision. The live mainnet validator stays free (`PaidMode=0`, the default).
-
-## Mexico
-Pack sales are income from services provided by David. Sales paid in USDC are taxable in MXN at
-the exchange rate on the day received; a CFDI is normally required for each sale, and foreign
-buyers get a CFDI with the generic foreign RFC (`XEXX010101000`). This is not a regulated
-financial service under Ley Fintech: no custody, no exchange, no payments for third parties; the
-buyer pays David for a service. Confirm regime and invoicing with a contador before the first
-mainnet sale.

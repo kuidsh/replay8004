@@ -18,6 +18,3 @@ cannot do them. Total cost ≈ US$3–15.
 | 8 | **Post** in the Celo forum / Discord (AI agents channel) offering free validations; open the `celo-org/agent-skills` PR | activation path and traction | free | 1 h |
 | 9 | **Fill the Frontier form** with PROPOSAL.md before **2026-12-29** (target: 2026-12-15). Accept Prezenti's grant policies; KYC; give a Celo address for USDm | the grant | free | 45 min |
 
-Mexico: a grant received in USDm is taxable income in MXN when received. Selling it later is an
-*enajenación*. Running a validator is not a regulated financial activity, but confirm the regime
-(RESICO or actividad empresarial) and invoicing to a Canadian payer with a contador.
