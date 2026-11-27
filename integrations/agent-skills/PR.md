@@ -53,6 +53,9 @@ the PR itself names no validator.
 - 2026-11-27: the patch applies cleanly to `celo-org/agent-skills@c414cbb` (still `main`); SKILL.md is 488 lines.
   `snippet-check/` typechecks under strict TS (viem 2.21.54, TS 5.6.3); `abi.ts` is the ABI file as a const export.
   The doc's code blocks differ from `snip.ts` only in the 3 documented lines.
+- 2026-11-27, **read-only on Celo Sepolia** (same script pointed at `0x8004Cb1B…4272`, viem 2.58.8): `2.0.0`, the "no contract"
+  error, an answered request read back (score 100), `getSummary(1037, [validator], "")` = (3, 66), and the `"unknown"`
+  revert for a never-requested hash. Strict typecheck also passes on viem 2.58.8. All links checked (no 404s).
 - 2026-11-27, **read-only on Celo mainnet** (`npx tsx snippet-check/verify_live.ts`): `verifyValidationRegistry`
   on `0x8004Cc84…AB58` returns `2.0.0`, throws "no contract" on an empty address; `getValidationStatus` on a real
   replay8004 answer returns it (score 100, tag `replay:erc20_transfer`); `getSummary(10143, [validator], "")` =

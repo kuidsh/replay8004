@@ -10,7 +10,7 @@ Every "done" below was verified by an on-chain read, the GitHub API, the npm/PyP
 | c | Public GitHub repo, green CI, matching what's deployed | **done** 2026-11-27: public, CI green, `main` = deployed v0.5, site on GitHub Pages | below |
 | d | `@replay8004/client` on npm, `replay8004` on PyPI | **done** 2026-11-27 (0.5.0 on both) | below |
 | e | Status page published | **done** 2026-11-27 | below |
-| f | celo-org/agent-skills PR | **ready** on a local branch, typechecked, verify code tested on mainnet; not opened | below |
+| f | celo-org/agent-skills PR | **ready, not opened**: branch pushed to the fork `kuidsh/agent-skills` (2026-11-27) | below |
 | g | GitHub issue to erc-8004/erc-8004-contracts | **drafted** | docs/OUTREACH.md §4 |
 | h | Celo forum + Discord posts | **drafted** | docs/OUTREACH.md §2–3 |
 | i | KarmaGAP profile, Celo address for USDm | **missing** (David) | steps below |
@@ -92,8 +92,12 @@ Live at https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amaz
   throws "no contract at this address" on an empty address; `getValidationStatus` of a real answer → score 100, tag
   `replay:erc20_transfer`; `getSummary(10143, [validator], "")` → (5, 70); a never-requested hash reverts (`"unknown"`),
   as the reference says.
-- **David** (free): fork, then commit and open the PR from `../agent-skills-pr`, as in `integrations/agent-skills/PR.md`
-  ("How to submit"). The fork creates a public repo under your account.
+- **2026-11-27:** forked to https://github.com/kuidsh/agent-skills; commit `014d3fb` (author `kuidsh`, GitHub no-reply
+  email) on branch `validation-registry-docs`, pushed to the fork. Also passes read-only on **Celo Sepolia** and
+  typechecks on viem 2.58.8; all links checked. **The PR is not opened** (David decides when). Command and text:
+  `gh pr create -R celo-org/agent-skills --base main --head kuidsh:validation-registry-docs --title "8004: document the
+  Validation Registry interface (preview) with ABI and on-chain verification" --body-file <PR.md Why/Changes/Testing>`.
+  Until it is opened, the Frontier texts say "a PR to Celo's agent-skills repo is ready".
 
 ## g–h. Drafts
 GitHub issue (with the doctor output), forum post, Discord message and a DM template: docs/OUTREACH.md. v0.5 is

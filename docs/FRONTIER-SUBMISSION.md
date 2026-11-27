@@ -6,7 +6,10 @@ Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can f
 
 ## Do these first (all David, details and costs in docs/LAUNCH-STATUS.md)
 1. ~~Deploy v0.5~~: done 2026-11-27 (both stacks), so x402 receipts and the `doctor` check below are live.
-2. Make the repo public (the form asks "fully open source?" and links to GitHub).
+2. ~~Make the repo public~~: done 2026-11-27 (site: https://kuidsh.github.io/replay8004/).
+2b. **Celo PR wording:** the texts below say "a PR to Celo's agent-skills repo is ready". If the PR is open by
+    submission day, replace that phrase with "a PR to Celo's agent-skills repo (<PR link>)" in C and E, and in PROPOSAL.md.
+    The branch is ready: `kuidsh/agent-skills`, `validation-registry-docs`.
 3. Open the erc-8004-contracts issue (docs/OUTREACH.md §4) and paste its link into B and the proposal.
 4. KarmaGAP profile, X handle, logo, payout address, read the grant policies.
 5. On the day, re-count answers (`docs/MAINNET-STATUS.md` method) and update B.
@@ -70,8 +73,8 @@ Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can f
 (If there are more answers on submission day, update the count and add the txs.)
 
 ### C. Activation path (first 10-100 agents)
-> 1) A ready PR to celo-org/agent-skills that documents the Validation Registry in Celo's official 8004 skill (it lists
-> no functions today), plus replay8004's own Agent Skill and a read-only MCP server, so coding agents learn to request
+> 1) A PR to Celo's agent-skills repo is ready: it documents the Validation Registry in Celo's official 8004 skill (it
+> lists no functions today), plus replay8004's own Agent Skill and a read-only MCP server, so coding agents learn to request
 > and check validations. 2) Direct, hand-held onboarding of Celo mainnet agents whose ERC-8004 registration files already
 > advertise A2A, MCP or x402 endpoints (I have a shortlist from the Identity Registry). Their first validations are
 > free and take one command or one TypeScript call. 3) Free validations for open-source agents, permanently (allowlist).
@@ -87,8 +90,9 @@ Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can f
 > It brings the dormant third leg of ERC-8004 back on Celo: before replay8004 the Validation Registry had 39 txs, the
 > last in March 2026. Reputation alone is weak; most feedback has no payment proof. replay8004 turns "I paid / I
 > delivered / my number is right" into a neutral, machine-readable score anyone can recompute. Marketplaces and x402
-> sellers can gate on getSummary or inherit ReplayGate.sol. It adds no new registry contracts, and the PR to Celo's
-> 8004 skill documents the Validation Registry for every builder, not only replay8004 users.
+> sellers can gate on getSummary or inherit ReplayGate.sol. It adds no new registry contracts, and a PR to Celo's
+> agent-skills repo is ready that documents the Validation Registry in Celo's 8004 skill for every builder, not only
+> replay8004 users.
 
 ### F. Technical credibility
 > Python + TypeScript, Apache-2.0. 185 Python tests (11 on an in-process EVM, including conformance tests against the
