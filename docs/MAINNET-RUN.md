@@ -35,6 +35,7 @@ Funding: 16.879989121819605 CELO from an exchange, in tx
 | 15 | 2026-11-26 | validation 3, **the answer: score 100** | validator | [`0x0f5a5329…33e3`](https://celoscan.io/tx/0x0f5a53294f66460d6a8b707744b8565580a162817cdc7f2e7e04b706f2e633e3) | 83,804,871 | 135,366 | 0.02741162 | **0.55462543** / 50 |
 | 16 | 2026-11-26 | validation 5, the request: claims 0.02 for a 0.01 payment (job [`mainnet/job-e7a4c7b2.json`](mainnet/job-e7a4c7b2.json)) | test agent | [`0x46c3e570…dd66`](https://celoscan.io/tx/0x46c3e5708c7ac74fbd504bd93a7eacd92314d4092c62aa484577b0f5cc72dd66) | 83,804,875 | 189,890 | 0.03845273 | **0.59307816** / 50 |
 | 17 | 2026-11-26 | validation 5, **the answer: score 50** ("transferred 0.01 < claimed 0.02") | validator | [`0xe485b247…be5a`](https://celoscan.io/tx/0xe485b247e76c93a25169b735d7896189d1b7295c3398ee0c8681ca506a74be5a) | 83,804,930 | 135,366 | 0.02741162 | **0.62048977** / 50 |
+| 18 | 2026-11-27 | `setAgentURI(10141, …)`: registration file v0.5 (repo link, 4 tags, evidence URL, `registrations[]`; [`mainnet/registration-10141-v05.json`](mainnet/registration-10141-v05.json), 1,313 bytes). tokenURI read back = the file | validator | [`0x13cdf93c…f4c1`](https://celoscan.io/tx/0x13cdf93c1f2f6d4bdac3f0c24c54686b3b664fccaf3be3cd1cd1a18d9ee6f4c1) | 83,891,414 | 814,606 | 0.16495772 | **0.78544749** / 50 |
 
 The total counts gas only. The 3 CELO moved in #2 stay within the project and are not spent.
 
@@ -98,6 +99,7 @@ Evidence for mainnet answers is served from
 Gas per answer was 0.0234-0.0274 CELO (115k-135k gas at 202.5 gwei). Everything so far (2 registrations, 1 funding
 transfer, 4 payments, 5 requests, 5 answers) cost **0.62048977 CELO** in gas, out of the 50 CELO cap.
 The evidence copies are in [`mainnet/evidence/`](mainnet/evidence/) and the job files in [`mainnet/`](mainnet/).
+On 2026-11-27 #18 updated the validator's registration file; the total is now **0.78544749 CELO**. Validator balance after it: 13.457 CELO.
 
 ## Stack updates (no transactions, no gas)
 | when (UTC) | stack | change | check after |

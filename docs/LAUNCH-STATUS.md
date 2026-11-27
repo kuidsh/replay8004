@@ -5,9 +5,9 @@ Every "done" below was verified by an on-chain read, the GitHub API, the npm/PyP
 
 | | item | status | evidence |
 |---|---|---|---|
-| a | Validator registered as an ERC-8004 agent | **done** (agent **#10141**); registration file update **optional** | below |
+| a | Validator registered as an ERC-8004 agent | **done** (agent **#10141**); registration file **updated** 2026-11-27 | below |
 | b | Self Agent ID | **done** (**#218**) | below |
-| c | Public GitHub repo, green CI, matching what's deployed | **partly**: CI green and `main` = deployed v0.5; repo still **private** | below |
+| c | Public GitHub repo, green CI, matching what's deployed | **done** 2026-11-27: public, CI green, `main` = deployed v0.5, site on GitHub Pages | below |
 | d | `@replay8004/client` on npm, `replay8004` on PyPI | **prepared**, not published; both names unclaimed | below |
 | e | Status page published | **built** (`./site`), not published; path proposed | below |
 | f | celo-org/agent-skills PR | **ready** on a local branch, typechecked, verify code tested on mainnet; not opened | below |
@@ -21,12 +21,13 @@ Every "done" below was verified by an on-chain read, the GitHub API, the npm/PyP
   `ownerOf(10141)` = the validator. The test agent #10143 is owned by `0x070a…8647`.
 - Its current file (on-chain `data:` URI, 917 chars) is the 0.1.1 format: name, description, one `validator` service.
   It has no repo link, no tags, no x402 kind and no `registrations[]` back-reference.
-- **Optional update, generated with `replay8004 identity`** (not sent):
+- **Updated 2026-11-27** ([tx 0x13cdf93c…f4c1](https://celoscan.io/tx/0x13cdf93c1f2f6d4bdac3f0c24c54686b3b664fccaf3be3cd1cd1a18d9ee6f4c1), block 83,891,414, 0.16496 CELO, sent by David with
+  `scripts/register_agent.py --update-agent-id 10141`; `tokenURI(10141)` now equals the file below byte for byte). It was
+  generated with `replay8004 identity`:
   `docs/mainnet/registration-10141-v05.json` (1,313 bytes) and `docs/mainnet/setAgentURI-10141-v05.calldata.txt`
   (`setAgentURI(10141, data:application/json;base64,…)` to `0x8004A169…a432`). It adds the repo, the
   `replay8004-validator` service with its 4 tags, the evidence base URL and `registrations[{agentId: 10141}]`.
-  `eth_estimateGas` from the validator = 829,872 gas → **≈ 0.168 CELO (≈ US$0.01)** at 202.5 gwei. Send it only after
-  the repo is public (the file links to it).
+  Estimated 829,872 gas (≈ 0.168 CELO); it used 814,606 gas (0.16496 CELO, ≈ US$0.01).
 
 ## b. Self Agent ID: done
 SelfAgentRegistry `0xaC3DF9ABf80d0F5c020C06B04Cced27763355944` (`name()` = "Self Agent ID", `symbol()` = "SAID"):
@@ -34,16 +35,13 @@ SelfAgentRegistry `0xaC3DF9ABf80d0F5c020C06B04Cced27763355944` (`name()` = "Self
 your agent #218 should list the validator address. If Self ever asks you to re-verify (passport expiry), use the same app.
 
 ## c. Public GitHub repo: missing
-- `gh repo view kuidsh/replay8004`: **PRIVATE**.
+- **Public since 2026-11-27**; landing page on GitHub Pages: https://kuidsh.github.io/replay8004/ (`index.html`, `.nojekyll`).
 - **Done 2026-11-27:** `v0.5-merge` pushed; CI passed all three jobs (Python 3.11, 3.12, TypeScript; solc builds and the
   EVM tests included); `main` fast-forwarded to `1d83aa5` and pushed; that code is deployed to both stacks (06:28 and
   06:37 UTC). So `main` matches what's deployed.
 - Before making it public (done 2026-11-27): gitleaks over all 28 commits finds no leaks; no `.env`, key or keystore file
   was ever committed; the AWS account ID appears in no tracked file or commit; commits use the GitHub no-reply email.
-- **David, remaining:** make it public (free):
-  ```
-  gh repo edit kuidsh/replay8004 --visibility public --accept-visibility-change-consequences
-  ```
+- Remaining: nothing.
 
 ## d. npm and PyPI: prepared, not published
 - `https://registry.npmjs.org/@replay8004%2fclient` → 404 and `https://pypi.org/pypi/replay8004/json` → 404: both
