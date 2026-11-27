@@ -10,7 +10,7 @@ resources are listed in [AWS-RESOURCES.md](AWS-RESOURCES.md).
 
 | | |
 |---|---|
-| Mainnet validator | `0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952`, Self Agent ID #218, key in `.env` as `MAINET_WALLET_PRIVATE_KEY` |
+| Mainnet validator | `0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952`, Self Agent ID #218, key in your secrets store (and in Secrets Manager as `replay8004/mainnet-validator`) |
 | AWS | profile `replay8004-deployer-mfa`, region us-east-1. Renew the MFA session first if it has expired. |
 | Gas cap | 50 CELO in total. Every tx goes into `docs/MAINNET-RUN.md`. |
 
@@ -25,7 +25,7 @@ $k = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices
 if ($k.Length -eq 66 -and $k.StartsWith("0x")) { aws secretsmanager create-secret --profile replay8004-deployer-mfa --region us-east-1 --name replay8004/mainnet-validator --tags Key=Project,Value=replay8004 --secret-string $k --query ARN --output text } else { "Not uploaded: got $($k.Length) characters, expected 66 starting with 0x." }
 Remove-Variable s, k
 ```
-Keep the printed ARN for step 5. **Keep the `.env` line for now**: step 4 signs with it.
+Keep the printed ARN for step 5. Keep the key in your secrets store: step 4 signs with it.
 To replace a wrong value, run the same three lines with `put-secret-value --secret-id replay8004/mainnet-validator`
 in place of `create-secret --name ... --tags ...`.
 
@@ -34,8 +34,7 @@ This wallet owns the test agent and pays for its validation requests. Never reus
 ```powershell
 .venv\Scripts\python scripts\new_wallets.py mainnet-agent-owner
 ```
-Save the key in your password manager, and add it to `.env` as `MAINNET_OWNER_KEY=0x...` for as long as the test
-validations run. Send Claude **only the address**.
+Save the key in your secrets store. Send Claude **only the address**.
 
 ## 3. Buy and send CELO (David)
 Buy about 10 CELO on a regulated exchange (e.g. Bitso). Withdraw on the **Celo network**, and send a small test amount
@@ -59,13 +58,13 @@ $env:REPLAY8004_ALLOW_MAINNET = "1"
 **Send (only after David approves the dry run; David runs it):**
 ```powershell
 $env:REPLAY8004_ALLOW_MAINNET = "1"
-$env:MAINET_WALLET_PRIVATE_KEY = (Select-String -Path .env -Pattern '^MAINET_WALLET_PRIVATE_KEY=(.+)$').Matches[0].Groups[1].Value.Trim()
+$s = Read-Host "Paste the validator key from your secrets store" -AsSecureString
+$env:MAINET_WALLET_PRIVATE_KEY = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s)); Remove-Variable s
 .venv\Scripts\python scripts\register_agent.py --network celo-mainnet --registration examples\registration.json --validator-address 0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952 --key-env MAINET_WALLET_PRIVATE_KEY --send
 Remove-Item Env:MAINET_WALLET_PRIVATE_KEY, Env:REPLAY8004_ALLOW_MAINNET
 ```
 The output ends with the new **agentId** and the tx link. Send both to Claude.
-**Then delete the `MAINET_WALLET_PRIVATE_KEY` line from `.env`.** From here on, the key lives only in your password
-manager and Secrets Manager.
+From here on, the key lives only in your secrets store and in Secrets Manager.
 
 ## 5. Deploy the mainnet stack (Claude, after David says "go mainnet")
 First as a dry run (no key used, nothing sent). Check the logs, then redeploy with `DryRun=0`.
@@ -90,16 +89,19 @@ Mainnet evidence stays locked for 365 days. The bucket is kept when the stack is
 answers link to it.
 
 ## 6. Run 5-10 real validations
-Test-agent wallet: `0x070a5F24851DD4D0200EBd4064F0914F92998647` (`.env`: `MAINET_AGENT_PRIVATE_KEY`).
+Test-agent wallet: `0x070a5F24851DD4D0200EBd4064F0914F92998647` (key in your secrets store).
 Every command below is a dry run without `--send`: Claude runs that first and shows you the result. You run the
 `--send` version only after approving it. Claude verifies every answer and logs every tx, with the running gas total,
 in `docs/MAINNET-RUN.md`. Claude stops before the total passes 50 CELO.
 
-Load the keys into the current PowerShell window (and nothing else), then clear them at the end:
+Load the keys from your secrets store into the current PowerShell window only (typed input stays hidden), then clear
+them at the end:
 ```powershell
 $env:REPLAY8004_ALLOW_MAINNET = "1"
-$env:MAINET_WALLET_PRIVATE_KEY = (Select-String -Path .env -Pattern '^MAINET_WALLET_PRIVATE_KEY=(.+)$').Matches[0].Groups[1].Value.Trim()
-$env:MAINET_AGENT_PRIVATE_KEY  = (Select-String -Path .env -Pattern '^MAINET_AGENT_PRIVATE_KEY=(.+)$').Matches[0].Groups[1].Value.Trim()
+$s = Read-Host "Paste the validator key from your secrets store" -AsSecureString
+$env:MAINET_WALLET_PRIVATE_KEY = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s)); Remove-Variable s
+$s = Read-Host "Paste the test-agent key from your secrets store" -AsSecureString
+$env:MAINET_AGENT_PRIVATE_KEY = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s)); Remove-Variable s
 # ... commands ...
 Remove-Item Env:MAINET_WALLET_PRIVATE_KEY, Env:MAINET_AGENT_PRIVATE_KEY, Env:REPLAY8004_ALLOW_MAINNET
 ```
@@ -129,6 +131,5 @@ Budget for 10 validations: ≈ 0.6 CELO from the test-agent wallet and ≈ 0.27 
 ## 7. Afterwards
 - The Sepolia stack costs about US$0.45/month while it runs live. Remove it (step 1 of [AWS-TEARDOWN.md](AWS-TEARDOWN.md)),
   or redeploy it with `DryRun=1`.
-- Delete `MAINNET_OWNER_KEY` from `.env` when the test validations are done.
 - Phase 6 (the repo goes public, `setAgentURI` with the repo link, the Frontier form) is in
   [PHASE6-CHECKLIST.md](PHASE6-CHECKLIST.md).

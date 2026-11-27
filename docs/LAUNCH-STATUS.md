@@ -96,7 +96,7 @@ deployed, so the texts match the live validator; post only after the repo is pub
 ## i. KarmaGAP profile and a Celo address for USDm (David)
 **Payout address first** (the grant is paid in **USDm**, Mento Dollar, `0x765DE816845861e75A25fCA122bb6898B8B1282a` on
 Celo; `symbol()` = USDm, 18 decimals, read 2026-11-27):
-1. Create a **new** wallet you control and that is not the validator (its key is in AWS and in `.env`): a hardware
+1. Create a **new** wallet you control and that is not the validator (its key is in AWS and your secrets store): a hardware
    wallet, or a fresh software wallet (MetaMask/Valora/Rabby) on an offline-backed-up seed. Don't reuse a test wallet.
 2. Write the seed on paper; never paste it into a tool, chat or file.
 3. Add Celo mainnet (chainId 42220, RPC `https://forno.celo.org`). Check the address on CeloScan. Holding USDm needs no
