@@ -113,7 +113,7 @@ The earlier attempt (kept for the record):
   typechecks on viem 2.58.8; all links checked. **The PR is not opened** (David decides when). Command and text:
   `gh pr create -R celo-org/agent-skills --base main --head kuidsh:validation-registry-docs --title "8004: document the
   Validation Registry interface (preview) with ABI and on-chain verification" --body-file <PR.md Why/Changes/Testing>`.
-  Until it is opened, the Frontier texts say "a PR to Celo's agent-skills repo is ready".
+  (Superseded: that repo is archived; the texts now link Celopedia PR #126.)
 
 ## g–h. Drafts
 GitHub issue (with the doctor output), forum post, Discord message and a DM template: docs/OUTREACH.md. v0.5 is
