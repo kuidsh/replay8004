@@ -50,4 +50,10 @@ the PR itself names no validator.
 - `tests/test_canonical_registry.py` (replay8004): every behaviour in the pitfalls list, on the canonical contracts.
 - The reference's viem snippets compile under **strict** TypeScript against viem (see `snippet-check/`: the
   snippets pasted unchanged except for a const-typed ABI import, a typed parameter and placeholder addresses).
-  Not run against a live chain: the build workspace can't reach Celo RPCs. Run one read on Celo Sepolia before opening the PR.
+- 2026-11-27: the patch applies cleanly to `celo-org/agent-skills@c414cbb` (still `main`); SKILL.md is 488 lines.
+  `snippet-check/` typechecks under strict TS (viem 2.21.54, TS 5.6.3); `abi.ts` is the ABI file as a const export.
+  The doc's code blocks differ from `snip.ts` only in the 3 documented lines.
+- 2026-11-27, **read-only on Celo mainnet** (`npx tsx snippet-check/verify_live.ts`): `verifyValidationRegistry`
+  on `0x8004Cc84…AB58` returns `2.0.0`, throws "no contract" on an empty address; `getValidationStatus` on a real
+  replay8004 answer returns it (score 100, tag `replay:erc20_transfer`); `getSummary(10143, [validator], "")` =
+  (5, 70); a never-requested hash reverts, as the reference says ("unknown").

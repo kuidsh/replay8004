@@ -29,8 +29,12 @@ Volumes are estimates.
    contract, 80% on milestones, 4 months to deliver. Applications close **2026-12-29**. Season 2
    outcomes came 2–4 weeks after submission. **Draft ask: US$12,000**, so US$2,400 at contract.
    *Season 2 funded 2 of 34 Frontier applications (≈ 6%).*
-2. **Paid validations (v1.0).** x402-priced checks at ≈ US$0.01–0.05 each for high-volume agents.
-   At US$0.02, 10k validations a month ≈ US$200 against ≈ US$1 of AWS plus ≈ US$17 of gas (conservative). *Not validated.*
+2. **Paid validations (built in v0.5, off; see docs/PAID.md).** x402 credit packs: 5 USDC for
+   250 validations, 40 USDC for 2,500; 25 free per agent per month. Packs, not per-call payments,
+   because Celo's facilitator charges gas + 0.3% per settlement (US$0.004 per tx in its config,
+   read 2026-11-26), ≈ 20% of a US$0.02 call but 0.4% of a 5 USDC pack. Margin ≈ US$4.55 per
+   starter pack after fees and conservative gas. Measured gas on mainnet: 0.0234–0.0274 CELO per
+   answer (docs/MAINNET-STATUS.md). *No buyer asked yet.*
 3. **Follow-on pools.** Prezenti Anchor and Boost, or Celo ecosystem RFPs, once usage exists.
 
 ## Payback

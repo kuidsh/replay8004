@@ -39,3 +39,4 @@ contracts/out/canonical/
 clients/ts/node_modules/
 clients/ts/dist/
 site/
+integrations/agent-skills/snippet-check/node_modules/

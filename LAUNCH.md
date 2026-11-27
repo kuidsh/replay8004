@@ -1,5 +1,8 @@
 # Launch plan: steps only David can do
 
+> **2026-11-27:** steps 1–7 are mostly done; current status, evidence and the remaining David-only steps are in
+> [docs/LAUNCH-STATUS.md](docs/LAUNCH-STATUS.md). This table is kept as the original plan.
+
 These need a person: a passport scan, real funds, accepting terms, or posting publicly. Claude
 cannot do them. Total cost ≈ US$3–15.
 

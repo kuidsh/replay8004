@@ -1,0 +1,15 @@
+{
+  "name": "agent-skills-snippet-check",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "live": "tsx verify_live.ts"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "tsx": "4.19.2",
+    "typescript": "5.6.3",
+    "viem": "2.21.54"
+  }
+}

@@ -1,13 +1,14 @@
 {
   "name": "@replay8004/client",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Request ERC-8004 validations from replay8004 on Celo, and read the results, in one call.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "files": [
-    "dist"
+    "dist/src",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
