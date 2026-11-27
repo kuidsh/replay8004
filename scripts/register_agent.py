@@ -6,6 +6,8 @@ Dry run by default: prints from / to / calldata / gas estimate / cost and sends 
 Mainnet needs --network celo-mainnet AND REPLAY8004_ALLOW_MAINNET=1 (operator decision).
 --registration FILE --validator-address 0x.. embeds a JSON template as a data: URI and shows the decoded JSON
 and its size. --from 0x.. does a dry run without any key.
+--update-agent-id N calls setAgentURI(N, uri) instead of register(uri): it refuses unless the sender owns agent N,
+and after sending it reads tokenURI(N) back and checks it equals the new URI.
 The signing key is read from an environment variable only (OWNER_KEY, or the one named by --key-env) and is
 never printed.
 """
@@ -35,6 +37,21 @@ def wait_receipt(rpc: Rpc, tx: str, timeout: int = 180) -> dict:
     raise TimeoutError(f"no receipt for {tx} after {timeout}s")
 
 
+def _call(rpc: Rpc, to: str, sig: str, agent_id: int, out: str):
+    from eth_abi import decode, encode
+    from replay8004.hashing import keccak
+    raw = rpc.eth_call(to, "0x" + (keccak(sig.encode())[:4] + encode(["uint256"], [int(agent_id)])).hex())
+    return decode([out], bytes.fromhex(raw[2:]))[0]
+
+
+def call_owner(rpc: Rpc, registry: str, agent_id: int) -> str:
+    return _call(rpc, registry, "ownerOf(uint256)", agent_id, "address").lower()
+
+
+def call_token_uri(rpc: Rpc, registry: str, agent_id: int) -> str:
+    return _call(rpc, registry, "tokenURI(uint256)", agent_id, "string")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--network", default="celo-sepolia", choices=sorted(networks.NETWORKS))
@@ -47,6 +64,7 @@ def main() -> None:
     ap.add_argument("--description", default="Test agent used to exercise the replay8004 validator on Celo Sepolia.")
     ap.add_argument("--send", action="store_true", help="really send (default: dry run)")
     ap.add_argument("--key-env", default="OWNER_KEY", help="environment variable that holds the signing key")
+    ap.add_argument("--update-agent-id", type=int, help="update this agent's URI (setAgentURI) instead of registering")
     a = ap.parse_args()
 
     net = networks.get(a.network, allow_mainnet=os.environ.get("REPLAY8004_ALLOW_MAINNET") == "1")
@@ -75,29 +93,45 @@ def main() -> None:
                           "jsonBytes": len(identity.decode_data_uri(uri)), "dataUriBytes": len(uri)}, indent=2))
     else:
         uri = a.agent_uri or identity.data_uri(identity.registration_json(a.name, a.description))
-    data = identity.encode_register(uri)
+    update = a.update_agent_id is not None
+    if update:  # only the owner may update; check before estimating or signing anything
+        owner = call_owner(rpc, net.identity, a.update_agent_id)
+        if owner != addr.lower():
+            sys.exit(f"agent #{a.update_agent_id} is owned by {owner}, not by the sender {addr}")
+        current = call_token_uri(rpc, net.identity, a.update_agent_id)
+        if current == uri:
+            sys.exit(f"agent #{a.update_agent_id} already has this URI; nothing to do")
+    data = identity.encode_set_uri(a.update_agent_id, uri) if update else identity.encode_register(uri)
     gas = int(rpc.call("eth_estimateGas", [{"from": addr, "to": net.identity, "data": data}]), 16)
     price = int(rpc.call("eth_gasPrice", []), 16)
     bal = int(rpc.call("eth_getBalance", [addr, "latest"]), 16)
     plan = {"network": net.name, "chainId": net.chain_id, "from": addr, "to": net.identity,
-            "function": "register(string agentURI)", "agentURI": uri if len(uri) <= 300 else uri[:300] + "...",
+            "function": f"setAgentURI({a.update_agent_id}, agentURI)" if update else "register(string agentURI)", "agentURI": uri if len(uri) <= 300 else uri[:300] + "...",
             "data": data, "gasEstimate": gas, "gasPriceGwei": round(price / 1e9, 3),
             "estCostCELO": round(gas * 1.2 * price / 1e18, 8), "maxCostCELO": round(gas * 1.2 * price * 2 / 1e18, 8),
             "balanceCELO": bal / 1e18, "send": a.send}
     print(json.dumps(plan, indent=2))
     if not a.send:
-        print("dry run: nothing sent. Re-run with --send to register.")
+        print("dry run: nothing sent. Re-run with --send to " + ("update the URI." if update else "register."))
         return
 
     tx = sender.send(net.identity, data)
     print(json.dumps({"tx": tx, "explorer": f"{net.explorer}/tx/{tx}"}))
     rec = wait_receipt(rpc, tx)
     if int(rec["status"], 16) != 1:
-        sys.exit(f"register reverted: {tx}")
+        sys.exit(f"{'setAgentURI' if update else 'register'} reverted: {tx}")
+    used = int(rec["gasUsed"], 16) * int(rec.get("effectiveGasPrice", "0x0"), 16)
+    if update:
+        stored = call_token_uri(rpc, net.identity, a.update_agent_id)
+        print(json.dumps({"agentId": a.update_agent_id, "tokenURIMatches": stored == uri, "block": int(rec["blockNumber"], 16),
+                          "gasUsed": int(rec["gasUsed"], 16), "feeCELO": used / 1e18, "tx": tx,
+                          "explorer": f"{net.explorer}/tx/{tx}"}, indent=2))
+        if stored != uri:
+            sys.exit("the tx succeeded but tokenURI does not equal the new URI: check the explorer")
+        return
     regs = identity.registered_from_receipt(rec, net.identity, sender.address)
     if len(regs) != 1:
         sys.exit(f"expected one Registered event for {sender.address}, found {len(regs)}")
-    used = int(rec["gasUsed"], 16) * int(rec.get("effectiveGasPrice", "0x0"), 16)
     print(json.dumps({"agentId": regs[0]["agentId"], "owner": regs[0]["owner"], "block": int(rec["blockNumber"], 16),
                       "gasUsed": int(rec["gasUsed"], 16), "feeCELO": used / 1e18, "tx": tx,
                       "explorer": f"{net.explorer}/tx/{tx}"}, indent=2))
