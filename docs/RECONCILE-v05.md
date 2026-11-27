@@ -3,6 +3,7 @@
 Compared 2026-11-27: this repo at `91d23ec` (main, deployed to both stacks on 2026-11-27 05:16 / 05:30 UTC)
 against the v0.5 reference (`../replay8004-v0.5`, unpacked from `replay8004-v0.5.zip`).
 Method: `git ls-files` here vs every file in the reference, then `diff --strip-trailing-cr` on each shared file.
+**Result deployed** 2026-11-27 (`1d83aa5`, both stacks; docs/MAINNET-STATUS.md section 6).
 
 **Main finding: v0.5 was branched from an older copy of this repo** (about v0.1.1, before 2026-11-21) and
 never received the fixes made while going live. So v0.5's versions of the core modules are *regressions*

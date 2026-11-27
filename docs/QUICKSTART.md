@@ -1,6 +1,8 @@
 # 5-minute quick-start: gate on replay8004 from your agent or contract
 
-Three ways to use the result. All read the canonical ValidationRegistry; none needs an account with us.
+Three ways to use the result. All read the ERC-8004 ValidationRegistry (a preview spec: check the address with
+`replay8004 doctor`); none needs an account with us. Examples use Celo Sepolia; the live mainnet validator is
+`0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952` on `0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58`.
 
 ## 1. Your agent paid an x402 API on Celo: get the payment validated (TypeScript)
 ```ts

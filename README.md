@@ -1,6 +1,6 @@
 # replay8004: a re-execution validator for ERC-8004 on Celo
 
-**Status (2026-11-27): live on Celo mainnet** since 2026-11-26 as validator `0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952` (ERC-8004 agent #10141, Self Agent ID #218): 5 requests, 5 answers, 13–55 s each (docs/MAINNET-STATUS.md). The stacks run 0.1.1 + the gas guard; **v0.5** (this branch) is built and tested and waits for its deploy. Celo Sepolia is the CLI default. 185 Python tests (11 on an in-process EVM) + 5 TypeScript tests pass, offline.
+**Status (2026-11-27): live on Celo mainnet** since 2026-11-26 as validator `0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952` (ERC-8004 agent #10141, Self Agent ID #218): 5 requests, 5 answers, 13–55 s each (docs/MAINNET-STATUS.md). Both stacks (mainnet and Sepolia) run **v0.5** since 2026-11-27. Celo Sepolia is the CLI default. 185 Python tests (11 on an in-process EVM) + 5 TypeScript tests pass, offline.
 
 v0.5 merges the reference v0.5 into the live code (docs/RECONCILE-v05.md): the `x402_settlement` checker, `doctor` (the registry is checked on-chain before any key is loaded), `request.block` in evidence, a state migration that never resets the evidence chain, `ReplayGate.sol` + the same rules off-chain (`gate`), a status page built from public evidence (`status --evidence`), the validator's registration file (`identity`), a TypeScript client (`clients/ts`), a read-only MCP server, an Agent Skill, a ready PR for Celo's `8004` skill, and **paid mode** (x402 credit packs, off by default and refused on mainnet for now; docs/PAID.md).
 
@@ -143,7 +143,8 @@ sam deploy ...                   # full command with tags and boundary: docs/PHA
 ## Roadmap
 - **Done:** mainnet validator with Self Agent ID and ERC-8004 registration (2026-11-26); gas guard; v0.5 merged
   (x402 checker, TS client, gate, status page, MCP, skill PR, paid mode).
-- **Next (Frontier milestone 1):** deploy v0.5; publish `@replay8004/client` and `replay8004`; open the skill PR;
+- **Done 2026-11-27:** v0.5 deployed to both stacks.
+- **Next (Frontier milestone 1):** make the repo public; publish `@replay8004/client` and `replay8004`; open the skill PR;
   10 external agents.
 - **Then:** publish the status page and the gate package; framework integrations; paid mode on Sepolia, then mainnet.
 

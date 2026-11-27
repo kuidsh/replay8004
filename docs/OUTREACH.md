@@ -1,7 +1,7 @@
 # Outreach drafts (David posts them; nothing here has been posted or sent)
 
-Post only after (1) the repo is public and (2) v0.5 is deployed to the mainnet stack: the texts mention x402 receipts,
-the TypeScript client and the `doctor` check. Facts as of 2026-11-27 (docs/MAINNET-STATUS.md).
+Post only after the repo is public: every link points to it. v0.5 is deployed (2026-11-27), so the texts match the
+live validator (x402 receipts, the `doctor` check); the TypeScript client is in the repo but not on npm yet. Facts as of 2026-11-27 (docs/MAINNET-STATUS.md).
 
 ---
 

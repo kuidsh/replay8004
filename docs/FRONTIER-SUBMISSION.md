@@ -5,8 +5,7 @@ Window closes **2026-12-29**; target **2026-12-15**. David fills in and submits 
 Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can fill it in.
 
 ## Do these first (all David, details and costs in docs/LAUNCH-STATUS.md)
-1. Deploy v0.5 (Sepolia, then mainnet). The texts below describe x402 receipts and the `doctor` check as live.
-   If you don't deploy, delete "x402 receipts" from A and B.
+1. ~~Deploy v0.5~~: done 2026-11-27 (both stacks), so x402 receipts and the `doctor` check below are live.
 2. Make the repo public (the form asks "fully open source?" and links to GitHub).
 3. Open the erc-8004-contracts issue (docs/OUTREACH.md §4) and paste its link into B and the proposal.
 4. KarmaGAP profile, X handle, logo, payout address, read the grant policies.

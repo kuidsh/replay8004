@@ -7,7 +7,7 @@ Every "done" below was verified by an on-chain read, the GitHub API, the npm/PyP
 |---|---|---|---|
 | a | Validator registered as an ERC-8004 agent | **done** (agent **#10141**); registration file update **optional** | below |
 | b | Self Agent ID | **done** (**#218**) | below |
-| c | Public GitHub repo, green CI, matching what's deployed | **missing**: private. CI green on the deployed commit | below |
+| c | Public GitHub repo, green CI, matching what's deployed | **partly**: CI green and `main` = deployed v0.5; repo still **private** | below |
 | d | `@replay8004/client` on npm, `replay8004` on PyPI | **prepared**, not published; both names unclaimed | below |
 | e | Status page published | **built** (`./site`), not published; path proposed | below |
 | f | celo-org/agent-skills PR | **ready** on a local branch, typechecked, verify code tested on mainnet; not opened | below |
@@ -34,19 +34,16 @@ SelfAgentRegistry `0xaC3DF9ABf80d0F5c020C06B04Cced27763355944` (`name()` = "Self
 your agent #218 should list the validator address. If Self ever asks you to re-verify (passport expiry), use the same app.
 
 ## c. Public GitHub repo: missing
-- `gh repo view kuidsh/replay8004`: **PRIVATE**. Last push 2026-11-27 05:10 UTC.
-- CI: the last 5 runs passed, including `91d23ec`, the commit both stacks run now.
-- Branch `v0.5-merge` (local, **not pushed**): 185 Python + 5 TS tests pass locally, cfn-lint clean, `sam build` OK.
-  CI has not run on it yet: its new jobs (solc builds, TS) run on the first push.
+- `gh repo view kuidsh/replay8004`: **PRIVATE**.
+- **Done 2026-11-27:** `v0.5-merge` pushed; CI passed all three jobs (Python 3.11, 3.12, TypeScript; solc builds and the
+  EVM tests included); `main` fast-forwarded to `1d83aa5` and pushed; that code is deployed to both stacks (06:28 and
+  06:37 UTC). So `main` matches what's deployed.
 - Before making it public (done 2026-11-27): gitleaks over all 28 commits finds no leaks; no `.env`, key or keystore file
   was ever committed; the AWS account ID appears in no tracked file or commit; commits use the GitHub no-reply email.
-- **David:** (1) review and push the branch, (2) wait for green CI, (3) merge to `main`, (4) deploy, (5) make it public.
-  Commands are in the numbered list in the final report and below.
+- **David, remaining:** make it public (free):
   ```
-  git push -u origin v0.5-merge            # CI runs; then open/merge a PR into main, or fast-forward main
   gh repo edit kuidsh/replay8004 --visibility public --accept-visibility-change-consequences
   ```
-  Cost: free. "Matching what's deployed": deploy the v0.5 changeset from the same commit you merge.
 
 ## d. npm and PyPI: prepared, not published
 - `https://registry.npmjs.org/@replay8004%2fclient` → 404 and `https://pypi.org/pypi/replay8004/json` → 404: both
@@ -93,8 +90,8 @@ your agent #218 should list the validator address. If Self ever asks you to re-v
   ("How to submit"). The fork creates a public repo under your account.
 
 ## g–h. Drafts
-GitHub issue (with the doctor output), forum post, Discord message and a DM template: docs/OUTREACH.md. Post only after
-the repo is public and v0.5 is deployed (the texts describe x402 receipts and the TS client).
+GitHub issue (with the doctor output), forum post, Discord message and a DM template: docs/OUTREACH.md. v0.5 is
+deployed, so the texts match the live validator; post only after the repo is public (every link points to it).
 
 ## i. KarmaGAP profile and a Celo address for USDm (David)
 **Payout address first** (the grant is paid in **USDm**, Mento Dollar, `0x765DE816845861e75A25fCA122bb6898B8B1282a` on

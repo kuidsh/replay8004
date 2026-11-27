@@ -98,3 +98,11 @@ Evidence for mainnet answers is served from
 Gas per answer was 0.0234-0.0274 CELO (115k-135k gas at 202.5 gwei). Everything so far (2 registrations, 1 funding
 transfer, 4 payments, 5 requests, 5 answers) cost **0.62048977 CELO** in gas, out of the 50 CELO cap.
 The evidence copies are in [`mainnet/evidence/`](mainnet/evidence/) and the job files in [`mainnet/`](mainnet/).
+
+## Stack updates (no transactions, no gas)
+| when (UTC) | stack | change | check after |
+|---|---|---|---|
+| 2026-11-27 05:16 / 05:30 | sepolia / mainnet | gas guard: 20 answers per UTC day, 5 per agent (`1762303`) | 12 / 3 runs, 0 errors |
+| 2026-11-27 06:28 / 06:37 | sepolia / mainnet | **v0.5.0** (`1d83aa5`): x402 checker, `verify_deployment` before the key, request-block evidence, state migration, paid mode off | migration once (`usage`, `expired`), then clean runs; mainnet still `seq 5`, head `0x97d1…ca1c` |
+
+Details: docs/MAINNET-STATUS.md (section 6) and docs/RECONCILE-v05.md.

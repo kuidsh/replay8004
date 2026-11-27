@@ -29,6 +29,6 @@ Goal: Prezenti S3 Frontier grant (deadline 2026-12-29), then paid validations vi
 - Gate rules and reason codes must match in ReplayGate.sol, gate.py and clients/ts decideClaim.
 
 ## Next
-Branch v0.5-merge: built, changesets created (not executed). David: deploy (Sepolia, then mainnet), make the repo
-public, publish npm/PyPI, open the skill PR and the erc-8004-contracts issue (docs/LAUNCH-STATUS.md). Then outreach
-(docs/OUTREACH.md) and the Frontier form (docs/FRONTIER-SUBMISSION.md) by 2026-12-15.
+v0.5 is on `main` and deployed to both stacks (2026-11-27). David: make the repo public, then setAgentURI for #10141
+(optional), publish npm/PyPI, the status page, the skill PR and the erc-8004-contracts issue (docs/LAUNCH-STATUS.md).
+Then outreach (docs/OUTREACH.md) and the Frontier form (docs/FRONTIER-SUBMISSION.md) by 2026-12-15.

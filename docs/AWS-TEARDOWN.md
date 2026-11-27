@@ -14,6 +14,7 @@ python scripts/aws_inventory.py --profile replay8004-deployer-mfa
 | CloudFormation stack | `sam deploy` | `replay8004-sepolia`, later `replay8004-mainnet` |
 | ↳ worker Lambda, log group, schedule | stack | `<stack>-worker`, `/aws/lambda/<stack>-worker`, `<stack>-every-minute` |
 | ↳ state table, 2 IAM roles | stack | `<stack>-StateTable-…`, `<stack>-WorkerFunctionRole-…`, `<stack>-WorkerFunctionEveryMinuteRole-…` |
+| ↳ only with `PaidMode=1`: paywall Lambda + URL, log group, role | stack | `<stack>-paywall`, `/aws/lambda/<stack>-paywall`, `<stack>-PaywallFunctionRole-…` (none exist today) |
 | ↳ evidence bucket | stack, **kept when the stack is deleted** | `<stack>-evidencebucket-…` |
 | SAM upload bucket | first `sam deploy --resolve-s3` | stack `aws-sam-cli-managed-default` |
 | validator key | David, Secrets Manager | `replay8004/<network>-validator` (tag it `Project=replay8004`) |

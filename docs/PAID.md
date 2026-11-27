@@ -1,7 +1,8 @@
 # Paid validations (v0.5): x402 credit packs
 
-**Status:** built and tested offline (`tests/test_billing_paywall.py`), not deployed. Off by default
-(`PaidMode=0`). Celo Sepolia first.
+**Status:** built and tested offline (`tests/test_billing_paywall.py`). The worker's billing hook is deployed on both
+stacks since 2026-11-27 but inactive (`PaidMode=0`); the paywall Function URL is not deployed. Celo Sepolia first; the
+template refuses `PaidMode=1` on mainnet.
 
 ## The offer
 | | price | per validation | what it covers |

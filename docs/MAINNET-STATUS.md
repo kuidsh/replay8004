@@ -3,9 +3,9 @@
 Everything below was read from Celo mainnet (forno.celo.org, cross-checked with celo.blockscout.com), the
 public evidence bucket and the stack's own logs and state. Nothing was sent, signed or deployed.
 
-**Running:** stack `replay8004-mainnet` (us-east-1), code `0.1.1` + gas guard (commit `91d23ec`, deployed
-2026-11-27 05:30 UTC). Branch `v0.5-merge` is built and its changeset is created but **not executed**
-(see the end of this file).
+**Running:** stack `replay8004-mainnet` (us-east-1), **v0.5.0** (`main` at `1d83aa5`), deployed 2026-11-27 06:37 UTC.
+The checks in sections 1–5 were made at 06:05 UTC, on the previous code (0.1.1 + gas guard, `91d23ec`); section 6 records
+the deploy and the checks after it.
 
 | | |
 |---|---|
@@ -83,8 +83,9 @@ Evidence: `https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.a
 `last_block 83857901, seq 5, head 0x97d1…ca1c, done 5, pending 0, inflight 0, failed 0, daily {2026-11-27: 0}`.
 No `usage`/`expired` keys yet. The v0.5 worker adds them (`store.migrate`) in its first write and leaves the rest alone.
 
-## 6. Pending deploy (created, NOT executed)
-`sam deploy --no-execute-changeset` with the current parameters:
+## 6. v0.5 deploy (2026-11-27)
+The changesets were first created with `sam deploy --no-execute-changeset` and the current parameters, reviewed, and then
+deployed with the same parameters and the same code artifact (`9edda1f2…`): Sepolia at 06:28 UTC, mainnet at 06:37 UTC.
 
 | stack | changeset | changes |
 |---|---|---|
@@ -93,3 +94,11 @@ No `usage`/`expired` keys yet. The v0.5 worker adds them (`store.migrate`) in it
 
 Not in either changeset: the evidence bucket, the DynamoDB table and its item. The Secrets Manager secret is
 not a stack resource (passed by ARN), so it can't be replaced. No paywall resources (`PaidMode=0`).
+
+After the deploy (read 06:40 UTC):
+- mainnet worker: `PAID_MODE=0`, `MAX_ANSWERS_PER_DAY=20`; first run logged `state migrated: added ['usage', 'expired']`
+  (once); the next runs report `held 0, expired 0`, no errors.
+- DynamoDB `pk=worker` (ver 1040): `seq 5`, head `0x97d152326c523de65a26bc81809beca1e8726c8ce7345d46a44780728ad0ca1c`, 5 done,
+  0 pending; keys now include `usage` and `expired`. The next answer will be bundle 6 with `prev` = that head.
+- Sepolia: the same migration once, then clean runs; its state kept `seq 1` and its done request.
+- Every run now calls `verify_deployment` (getIdentityRegistry() == Celo's Identity Registry) before loading the key.
