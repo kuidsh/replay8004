@@ -35,9 +35,11 @@ def test_status_summary_and_html(tmp_path):
     assert st["chain"]["intact"] and st["byTag"]["replay:erc20_transfer"]["count"] == 2
     assert st["byTag"]["replay:invalid"] == {"count": 1, "avg": 0, "passed": 0}
     assert st["passRate"] == round(1 / 3, 4)
+    assert st["claims"] == {"held": 1, "partlyTrue": 1, "false": 1}     # counts claims, not validator mistakes
     assert st["medianSecondsToDecide"] == 49          # 1000 - 951
-    page = (tmp_path / "site" / "index.html").read_text()
+    page = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
     assert "chain" in page and "intact" in page and "<script" not in page
+    assert "1 of 3</b>claims held" in page and "1 partly true · 1 false" in page and "passed" not in page
     assert json.loads((tmp_path / "site" / "status.json").read_text())["answered"] == 3
 
 
@@ -104,3 +106,10 @@ def test_cli_status(tmp_path, capsys):
     with pytest.raises(SystemExit) as e:
         main(["status", "--evidence", str(tmp_path / "ev"), "--out", str(tmp_path / "site")])
     assert e.value.code == 0 and json.loads(capsys.readouterr().out)["answered"] == 3
+
+
+def test_status_note_is_plain_text(tmp_path):
+    _answer_three(tmp_path)
+    status.build_site(tmp_path / "ev", tmp_path / "site", note="Tests by <b>us</b> & friends")
+    page = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
+    assert "Tests by &lt;b&gt;us&lt;/b&gt; &amp; friends" in page and "<b>us</b>" not in page

@@ -146,8 +146,9 @@ def cmd_status(a):
     import datetime as dt
     from . import status
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
-    st = status.build_site(a.evidence, a.out, validator=a.validator, now=now, evidence_base_url=a.evidence_base_url)
-    print(json.dumps({k: st[k] for k in ("answered", "agents", "passRate", "medianSecondsToDecide", "chain")}, indent=2))
+    st = status.build_site(a.evidence, a.out, validator=a.validator, now=now, evidence_base_url=a.evidence_base_url,
+                           note=a.note)
+    print(json.dumps({k: st[k] for k in ("answered", "agents", "claims", "medianSecondsToDecide", "chain")}, indent=2))
     sys.exit(0 if st["chain"]["intact"] else 1)
 
 
@@ -263,6 +264,7 @@ def main(argv=None):
     st.add_argument("--out", default="site")
     st.add_argument("--validator")
     st.add_argument("--evidence-base-url", default="../evidence")
+    st.add_argument("--note", default="", help="one line of context shown on the page (plain text)")
     st.set_defaults(fn=cmd_status)
 
     i = sub.add_parser("identity")
