@@ -18,4 +18,5 @@ const { hash, requestHash } = await requestValidation(wallet, {
 const ok = await passes(publicClient, "celo-sepolia", 42n, REPLAY8004, "x402_settlement", 90);
 ```
 
-`npm test` compiles and checks the shared vectors. Not yet published to npm (David's step).
+Install: `npm install @replay8004/client viem`. `npm test` compiles and checks the shared vectors.
+Source and docs: https://github.com/kuidsh/replay8004

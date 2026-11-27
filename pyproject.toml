@@ -11,6 +11,19 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
 dependencies = ["eth-abi>=5,<7", "eth-account>=0.11,<0.15", "eth-hash[pycryptodome]>=0.7"]
+keywords = ["erc-8004", "celo", "ai-agents", "validation", "x402", "evm"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Topic :: Security",
+  "Development Status :: 4 - Beta",
+]
+
+[project.urls]
+Homepage = "https://kuidsh.github.io/replay8004/"
+Repository = "https://github.com/kuidsh/replay8004"
+Issues = "https://github.com/kuidsh/replay8004/issues"
+Status = "https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/status/index.html"
 
 [project.optional-dependencies]
 aws = ["boto3>=1.34"]
