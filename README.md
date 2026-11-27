@@ -139,14 +139,15 @@ sam deploy ...                   # full command with tags and boundary: docs/PHA
 | `replay8004/billing.py`, `replay8004/paywall.py` | paid mode: credit packs, free quota, admit rule; x402 paywall (verify → settle → on-chain re-check → credit) |
 | `clients/ts/` | `@replay8004/client` (viem) + tests against `tests/vectors/client.json` |
 | `contracts/canonical/`, `tests/test_canonical_registry.py` | ERC-8004 registry sources and conformance tests |
-| `integrations/agent-skills/` | ready PR for Celo's `8004` skill (Validation Registry docs) |
+| `integrations/celopedia/` | the Validation Registry reference sent to Celo's Celopedia skill ([PR #126](https://github.com/celo-org/celopedia-skills/pull/126)); `integrations/agent-skills/` is the earlier version for the archived agent-skills repo |
 
 ## Roadmap
 - **Done:** mainnet validator with Self Agent ID and ERC-8004 registration (2026-11-26); gas guard; v0.5 merged
   (x402 checker, TS client, gate, status page, MCP, skill PR, paid mode).
 - **Done 2026-11-27:** v0.5 deployed to both stacks.
 - **Done 2026-11-27:** repo public, site on GitHub Pages, status page, `replay8004` on PyPI, `@replay8004/client` on npm.
-- **Next (Frontier milestone 1):** open the skill PR;
+- **Open:** [Celopedia PR #126](https://github.com/celo-org/celopedia-skills/pull/126) (Validation Registry docs).
+- **Next (Frontier milestone 1):**
   10 external agents.
 - **Then:** publish the status page and the gate package; framework integrations; paid mode on Sepolia, then mainnet.
 

@@ -10,7 +10,7 @@ Every "done" below was verified by an on-chain read, the GitHub API, the npm/PyP
 | c | Public GitHub repo, green CI, matching what's deployed | **done** 2026-11-27: public, CI green, `main` = deployed v0.5, site on GitHub Pages | below |
 | d | `@replay8004/client` on npm, `replay8004` on PyPI | **done** 2026-11-27 (0.5.0 on both) | below |
 | e | Status page published | **done** 2026-11-27 | below |
-| f | celo-org/agent-skills PR | **ready, not opened**: branch pushed to the fork `kuidsh/agent-skills` (2026-11-27) | below |
+| f | Celo skills PR | **opened** 2026-11-27: [celopedia-skills#126](https://github.com/celo-org/celopedia-skills/pull/126) (issue [#125](https://github.com/celo-org/celopedia-skills/issues/125)) | below |
 | g | GitHub issue to erc-8004/erc-8004-contracts | **drafted** | docs/OUTREACH.md §4 |
 | h | Celo forum + Discord posts | **drafted** | docs/OUTREACH.md §2–3 |
 | i | KarmaGAP profile, Celo address for USDm | **missing** (David) | steps below |
@@ -81,7 +81,23 @@ Live at https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amaz
   ```
   Rebuild it after new answers (`replay8004 status --evidence <synced folder> --out site …`); automating it is milestone 2.
 
-## f. celo-org/agent-skills PR: ready, not opened
+## f. Celo skills PR: opened 2026-11-27
+- **`celo-org/agent-skills` is archived** (about 2026-10-21; `gh pr create` returned "Repository was archived so is read-only").
+  Its README names **celo-org/celopedia-skills** as the canonical source, so the work moved there.
+- Celopedia's process: an issue through its task form, then a PR on `<handle>/<issue>-<slug>` with its template. Filed
+  **[issue #125](https://github.com/celo-org/celopedia-skills/issues/125)** (auto-labelled `priority:low`) and opened **[PR #126](https://github.com/celo-org/celopedia-skills/pull/126)** from
+  `kuidsh/celopedia-skills`, branch `kuidsh/125-validation-registry-docs`, commit `ed6d7a3` (no-reply email). `Closes #125`.
+- The change: new `references/erc8004-validation-registry.md` (copy in `integrations/celopedia/`), one pointer in
+  `ai-agents.md:22` (its "do not give an address" rule kept), two lines in `SKILL.md`, version 2.17.0. **No address added.**
+- Verified at the source: all 8 functions and both events in the deployed mainnet implementation's bytecode; all 6 revert
+  strings reproduced with `eth_call` (`bad validator`, `Not authorized`, `exists`, `not validator`, `resp>100`, `unknown`);
+  the file's code blocks typecheck strictly on viem 2.58.8 and run read-only on Celo Mainnet and Sepolia.
+- Checks on the PR at opening: StepSecurity required + optional pass; GitGuardian pending. Mergeable.
+- Open PRs #122 and #124 also set the version (2.16.6); rebase #126 after whichever merges first.
+- The fork of the archived repo (`kuidsh/agent-skills`) still exists: deleting it was blocked by Claude's permission
+  check. Delete it yourself if you like (GitHub → the repo → Settings → Delete), or leave it; it does nothing.
+
+The earlier attempt (kept for the record):
 - Cloned `celo-org/agent-skills` to `../agent-skills-pr` (upstream `main` is still `c414cbb`, the patch's base), branch
   `validation-registry-docs`, `git apply` of `integrations/agent-skills/0001-8004-validation-registry.patch`: **clean**.
   Left uncommitted so David authors the commit. `skills/8004/SKILL.md` is 488 lines (limit 500). The three changed files

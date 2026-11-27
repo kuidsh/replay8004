@@ -146,7 +146,7 @@ Disclosure: I maintain replay8004 (https://github.com/kuidsh/replay8004, Apache-
 
 ---
 
-## 5. celo-org/agent-skills PR
-Ready and tested; see `integrations/agent-skills/PR.md` (patch, PR text, "How to submit") and docs/LAUNCH-STATUS.md (f).
+## 5. Celo skills PR
+Opened as https://github.com/celo-org/celopedia-skills/pull/126 (Celopedia; `celo-org/agent-skills` is archived). Details: docs/LAUNCH-STATUS.md (f).
 It documents the Validation Registry in Celo's own `8004` skill and names no validator. replay8004's own skill lives in
 this repo (`skills/replay8004/SKILL.md`) and is not part of that PR.

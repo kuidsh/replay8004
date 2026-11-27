@@ -1,5 +1,8 @@
 # PR to `celo-org/agent-skills`: document the Validation Registry in the `8004` skill
 
+> **Superseded 2026-11-27.** `celo-org/agent-skills` is archived (read-only); this content was adapted for Celopedia and
+> opened as https://github.com/celo-org/celopedia-skills/pull/126. See docs/LAUNCH-STATUS.md (f) and `integrations/celopedia/`.
+
 **Base:** `celo-org/agent-skills@c414cbb` (main, 2026-09-13). **Patch:** `0001-8004-validation-registry.patch`
 (made with `git diff`, so you author the commit). The changed files are also copied under `skills/8004/` here.
 
