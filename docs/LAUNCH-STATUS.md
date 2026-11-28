@@ -11,7 +11,7 @@ Every "done" below was verified by an on-chain read, the GitHub API, the npm/PyP
 | d | `@replay8004/client` on npm, `replay8004` on PyPI | **done** 2026-11-27 (0.5.0 on both) | below |
 | e | Status page published | **done** 2026-11-27 | below |
 | f | Celo skills PR | **opened** 2026-11-27: [celopedia-skills#126](https://github.com/celo-org/celopedia-skills/pull/126) (issue [#125](https://github.com/celo-org/celopedia-skills/issues/125)) | below |
-| g | GitHub issue to erc-8004/erc-8004-contracts | **drafted** | docs/OUTREACH.md §4 |
+| g | GitHub issue to erc-8004/erc-8004-contracts | **opened** 2026-11-27: [#109](https://github.com/erc-8004/erc-8004-contracts/issues/109), no answer yet | docs/OUTREACH.md §4 |
 | h | Celo forum + Discord posts | **drafted** | docs/OUTREACH.md §2–3 |
 | i | KarmaGAP profile, Celo address for USDm | **missing** (David) | steps below |
 

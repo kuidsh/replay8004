@@ -30,7 +30,7 @@ Registry address. The address replay8004 uses, `0x8004Cc84…AB58`, comes from t
 (`scripts/addresses.ts`). replay8004 checks it on-chain before it loads its key, on every run (`replay8004 doctor`):
 `getIdentityRegistry()` must return Celo's Identity Registry. Today it does, and `getVersion()` is `2.0.0`. We have asked the
 maintainers whether this is the canonical Celo deployment and whether a redeploy is planned
-**[NEEDS DAVID: issue link once opened, and their answer]**. If the registry is redeployed, replay8004 moves with it: the
+([erc-8004-contracts#109](https://github.com/erc-8004/erc-8004-contracts/issues/109), opened 2026-11-27; no answer yet). If the registry is redeployed, replay8004 moves with it: the
 address is one config value, and the job, evidence and gate code don't depend on it. Milestone 1 covers that migration if
 it happens.
 

@@ -9,7 +9,8 @@ Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can f
 2. ~~Make the repo public~~: done 2026-11-27 (site: https://kuidsh.github.io/replay8004/).
 2b. **Celo PR:** opened 2026-11-27 as https://github.com/celo-org/celopedia-skills/pull/126 (celo-org/agent-skills was archived, so it went to Celopedia, which that
     repo points to). The texts below link it. If it is merged by submission day, say "merged" instead of "open".
-3. Open the erc-8004-contracts issue (docs/OUTREACH.md §4) and paste its link into B and the proposal.
+3. ~~Open the erc-8004-contracts issue~~ Done 2026-11-27: https://github.com/erc-8004/erc-8004-contracts/issues/109 (linked in B and the proposal). If the maintainers
+   answer before submission, add their answer to B and the proposal.
 4. KarmaGAP profile, X handle, logo, payout address, read the grant policies.
 5. On the day, re-count answers (`docs/MAINNET-STATUS.md` method) and update B.
 
@@ -60,7 +61,7 @@ Facts: docs/MAINNET-STATUS.md (2026-11-27). **[NEEDS DAVID]** = only David can f
 > Validator 0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952 answers on the ERC-8004 ValidationRegistry
 > 0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58 (address from erc-8004-contracts scripts/addresses.ts; the validation spec is
 > still a preview, so replay8004 checks getIdentityRegistry() on-chain before every run. Question to the maintainers:
-> **[NEEDS DAVID: issue link]**). 5 requests, 5 validationResponse txs, 13-55 s from request to answer:
+> https://github.com/erc-8004/erc-8004-contracts/issues/109). 5 requests, 5 validationResponse txs, 13-55 s from request to answer:
 > 0x7acc6c0d170e36932f4f53a3d8acad437fc7f1549676b8701e82cbc9c5a7d27f (100),
 > 0xbb91d72c5f9a4f5f818c080b186f15622310e50c46de8bff8bfbf096ec2b8626 (0, false claim),
 > 0x8719a84b6af6f8dc4c8b7ebb5ed4153fe5631070f477def5e789a4036f509054 (100),

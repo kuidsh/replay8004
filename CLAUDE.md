@@ -30,6 +30,6 @@ Goal: Prezenti S3 Frontier grant (deadline 2026-12-29), then paid validations vi
 
 ## Next
 v0.5 is on `main` and deployed to both stacks (2026-11-27). David: make the repo public, then setAgentURI for #10141
-(done), npm/PyPI (done 2026-11-27), the status page (done); Celopedia PR #126 open; next: the erc-8004-contracts issue
-(docs/LAUNCH-STATUS.md).
+(done), npm/PyPI (done 2026-11-27), the status page (done); Celopedia PR #126 open; erc-8004-contracts issue #109 open
+(watch both, docs/LAUNCH-STATUS.md).
 Then outreach (docs/OUTREACH.md) and the Frontier form (docs/FRONTIER-SUBMISSION.md) by 2026-12-15.

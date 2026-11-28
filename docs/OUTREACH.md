@@ -105,7 +105,10 @@ need next?
 
 ---
 
-## 4. GitHub issue for `erc-8004/erc-8004-contracts` (draft; David opens it)
+## 4. GitHub issue for `erc-8004/erc-8004-contracts`
+
+**Opened 2026-11-27 as https://github.com/erc-8004/erc-8004-contracts/issues/109.** The posted text also links Celopedia PR #126 and has a fresh head
+(83,928,694); the draft below is kept for the record.
 
 **Title:** Is `0x8004Cc8439f36fd5F9F049D9fF86523Df6dAAB58` the canonical ValidationRegistry on Celo mainnet, and is a redeploy planned?
 
