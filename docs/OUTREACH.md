@@ -46,6 +46,40 @@ Read 2026-11-27 from the Celo mainnet Identity Registry (`tokenURI` of the 135 n
 
 **Start with:** P0 Agent Economy Index (#10068, real x402 settlements on Celo), Upswing BRL-Rail (#10154) and Spendguard Scout (#10134) (x402 + MCP, and their product is already about verifying payments), BotHire (#10083/#10084), ChambaPay (#10039) and Contest Radar (#10034), which have the most USDC activity.
 
+### How to reach them (checked 2026-11-27)
+Taken from each registration file, agent card and website (public links only; nothing was sent). "GH issue" = the repo
+accepts issues and was pushed to in November 2026.
+
+| # | agent | best channel | other |
+|---|---|---|---|
+| 1 | P0 Agent Economy Index (#10068) | none public: its A2A/MCP endpoint only | most real x402 settlements on Celo; try the Celo Discord |
+| 2 | Upswing BRL-Rail (#10154) | GH issue: `Upswing-Labs/celo-brl-rail-agent` | |
+| 3 | Spendguard Scout (#10134) | email `hexbox@mail.grokbot.com` | GH issue: `HexboxTools/celo-spendguard` |
+| 4 | BotHire (#10083/#10084) | X `@BotHireAgent` | email `ai@bothire.io` |
+| 5 | Contest Radar (#10034) | GH issue: `safwaankira/contest-radar` | |
+| 6 | Altana Wallet (#10072) | email `founders@altana.network` | X `@altananetwork` (real x402 settlement seen) |
+| 7 | Kovenra (#10137) | X `@RaphElevator` | GH issue: `angelraph/Kovenra` |
+| 8 | Vire (#10116) | GH issue: `eugenennamdi/Vire` | X `@creator_ng` |
+| 9 | Errand (#10107) | GH issue: `softalpha0/Errand` | |
+| 10 | Tanda Payout Desk (#10094) | GH issue: `dunoil/tanda` | |
+| 11 | Keel Payroll (#10091) | GH issue: `yayguru/keel-payroll` | |
+| 12 | NairaTag (#10078) | GH issue: `MrBloomguy/nairatag-protocol` | |
+| 13 | Nomai / Nomito (#10049) | email `hola@nomai.app` | |
+| 14 | Meet (#10044) | GH issue: `Stella112/meet` | |
+| 15 | ADELANTO (#10043) | GH issue: `Jennycruzy/adelanto` | Telegram bot `@adelanto_ar_bot` |
+| 16 | Flux (#10037/#10038) | GH issue: `0andadream/FLUX` | |
+| 17 | Cobrá Relayer (#10033) | Telegram bot `@cobra_agent_telegram_bot` only | |
+| 18 | Wayan Warrior (#10028) | Telegram `t.me/islandsofgods` | |
+| 19 | The Defendant (#10018–10023) | X `@GigaHierz` (Celo DevRel Lead) | GH `GigaHierz/agent-on-trial`. Ask for feedback, don't pitch: she runs Celo's devrel |
+| — | Attestra, Tidewatch, Puente, Pay Small Check, Cuota | none found | Cuota's site returns 404 |
+| — | ChambaPay (#10039) | **skip**: `chambapay.celo.org` doesn't resolve, though it claims a celo.org domain | |
+
+**Pace:** 5 a week, best fits first (rows 1–6), each one written for that agent. Fifteen identical GitHub issues on
+the same day read as spam and can get the account flagged. Every send is David's call.
+
+**GitHub-issue version** (title: `Optional: on-chain validation of [agent]'s [x402 payments / claims] on Celo`): the DM
+below, plus one line at the end: "Feel free to close this if it isn't relevant."
+
 ### DM template (one agent at a time; fill in the brackets; honest about what exists)
 > Hi [name/team]. I saw [agent name] (ERC-8004 agent #[id] on Celo) lists a [MCP/A2A/x402] endpoint. I run replay8004,
 > an open-source validator for ERC-8004's Validation Registry on Celo. Your agent (or its buyers) can send it a claim
