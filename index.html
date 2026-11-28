@@ -82,6 +82,11 @@ pre{background:var(--code);border:1px solid var(--line);border-radius:8px;paddin
 .note{border-left:3px solid var(--amber);padding:6px 0 6px 14px;margin:18px 0 0;font-size:15px}
 .facts dt{font-weight:700;margin-top:12px}
 .facts dd{margin:2px 0 0;overflow-wrap:anywhere}
+.video{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(20px,3vw,40px);align-items:center}
+.video .frame{aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#000}
+.video iframe{width:100%;height:100%;border:0;display:block}
+.video p{margin:0 0 10px}
+@media(max-width:860px){.video{grid-template-columns:minmax(0,1fr)}}
 .closing{background:var(--deep);color:#f2f6f3}
 .closing .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
 .closing p{margin:0;color:#c4d8d2;max-width:40em}
@@ -96,7 +101,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
 <body>
 <nav><div class="wrap">
   <a class="brand" href="#"><svg viewBox="0 0 9 9" aria-hidden="true"><rect width="9" height="9" rx="1.2" fill="#3fb39c"/><path d="M2 5l2 2 3-5" fill="none" stroke="#0b4f45" stroke-width="1.1"/></svg>replay8004</a>
-  <a class="l" href="#how">How it works</a><a class="l" href="#checks">What it checks</a><a class="l" href="#use">Use it</a><a class="l" href="#verify">Verify</a><a class="l" href="https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/status/index.html">Live status</a>
+  <a class="l" href="#video">Video</a><a class="l" href="#how">How it works</a><a class="l" href="#checks">What it checks</a><a class="l" href="#use">Use it</a><a class="l" href="#verify">Verify</a><a class="l" href="https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/status/index.html">Live status</a>
   <a class="btn" href="https://github.com/kuidsh/replay8004">GitHub</a>
 </div></nav>
 
@@ -121,6 +126,15 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
   </div>
   <div class="chain" id="chain"></div>
   <div class="legend"><span><i style="background:var(--green)"></i>claim holds</span><span><i style="background:var(--amber)"></i>partly true (paid less than claimed)</span><span><i style="background:var(--brick)"></i>false claim</span><span class="muted">Each bundle's keccak256 is the <code>responseHash</code> on-chain and the next bundle's <code>prev</code>.</span></div>
+</div></section>
+
+<section class="band" id="video" aria-labelledby="video-h" style="padding-top:0"><div class="wrap video">
+  <div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/WkDwMJCVuXc" title="replay8004: don't trust the claim, replay it (2-minute video)" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+  <div>
+    <h2 id="video-h">Watch it in 2 minutes</h2>
+    <p>The five mainnet answers above, re-run from public data only: the same scores, every evidence hash matching the on-chain <code>responseHash</code>, and a forged copy caught at once.</p>
+    <p class="muted"><a href="https://www.youtube.com/watch?v=WkDwMJCVuXc">Open on YouTube</a> · narration is a synthetic voice</p>
+  </div>
 </div></section>
 
 <section class="band" id="how" aria-labelledby="how-h"><div class="wrap">
