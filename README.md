@@ -2,6 +2,8 @@
 
 **Status (2026-11-27): live on Celo mainnet** since 2026-11-26 as validator `0xD2d6c6DEaaDF2A5868e8e0C17d674D49531C5952` (ERC-8004 agent #10141, Self Agent ID #218): 5 requests, 5 answers, 13–55 s each (docs/MAINNET-STATUS.md). Site: https://kuidsh.github.io/replay8004/ · live status, rebuilt from the public evidence: https://replay8004-mainnet-evidencebucket-exgfx3xqkhfr.s3.us-east-1.amazonaws.com/evidence/status/index.html Both stacks (mainnet and Sepolia) run **v0.5** since 2026-11-27. Celo Sepolia is the CLI default. 185 Python tests (11 on an in-process EVM) + 5 TypeScript tests pass, offline.
 
+**Video (2-min pitch):** https://www.youtube.com/watch?v=WkDwMJCVuXc. It re-runs the 5 mainnet answers from public data only and catches a forged evidence bundle.
+
 v0.5 merges the reference v0.5 into the live code (docs/RECONCILE-v05.md): the `x402_settlement` checker, `doctor` (the registry is checked on-chain before any key is loaded), `request.block` in evidence, a state migration that never resets the evidence chain, `ReplayGate.sol` + the same rules off-chain (`gate`), a status page built from public evidence (`status --evidence`), the validator's registration file (`identity`), a TypeScript client (`clients/ts`), a read-only MCP server, an Agent Skill, a ready PR for Celo's `8004` skill, and **paid mode** (x402 credit packs, off by default and refused on mainnet for now; docs/PAID.md).
 
 ERC-8004 gives AI agents three on-chain registries: identity, reputation and **validation**. On
